@@ -1,7 +1,25 @@
+import React, { useState, useEffect } from 'react'
+
 import Head from 'next/head'
 import clientPromise from '../lib/mongodb'
 
 export default function Home({ isConnected }) {
+
+
+  const [nftData, setNftData] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/root')
+    .then(res => res.json())
+    .then(gsRes => {
+      setNftData(gsRes)
+    })
+    .catch(err => console.log(err))
+  },[])
+
+  
+
+
   return (
     <div className="container">
       <Head>
@@ -10,7 +28,10 @@ export default function Home({ isConnected }) {
       </Head>
 
       <main>
-        <h1 className="title">
+
+        
+
+        {/* <h1 className="title">
           Welcome to <a href="https://nextjs.org">Next.js with MongoDB!</a>
         </h1>
 
@@ -25,10 +46,17 @@ export default function Home({ isConnected }) {
 
         <p className="description">
           Get started by editing <code>pages/index.js</code>
-        </p>
+        </p> */}
 
-        <div className="grid">
-          <a href="https://nextjs.org/docs" className="card">
+        <div>
+          {/* {
+            nftData ? nftData.map(
+              (sale) => <p> {
+                sale.transaction.orderA ? sale.transaction.orderA.amountB + ' ' + parseFloat('0.' + sale.transaction.orderA.amountS) : undefined
+                } </p>
+            ) : undefined
+          } */}
+          {/* <a href="https://nextjs.org/docs" className="card">
             <h3>Documentation &rarr;</h3>
             <p>Find in-depth information about Next.js features and API.</p>
           </a>
@@ -54,19 +82,19 @@ export default function Home({ isConnected }) {
             <p>
               Instantly deploy your Next.js site to a public URL with Vercel.
             </p>
-          </a>
+          </a> */}
         </div>
       </main>
 
       <footer>
-        <a
+        {/* <a
           href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
           target="_blank"
           rel="noopener noreferrer"
         >
           Powered by{' '}
           <img src="/vercel.svg" alt="Vercel Logo" className="logo" />
-        </a>
+        </a> */}
       </footer>
 
       <style jsx>{`
