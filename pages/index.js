@@ -49,10 +49,10 @@ export default function Home({ isConnected }) {
           {
             nftData ? nftData.map(
               (sale) => (
-                <div>
+                <div style={{minWidth: "80vw"}}>
                 <p style={{display: "inline"}}> 
                   {sale.transaction.orderA ? sale.transaction.orderA.amountB + ' ' + parseFloat('0.' + sale.transaction.orderA.amountS) : undefined}
-                </p>{sale.transaction.orderA ? <span style={{display: 'block',maxWidth: parseFloat('0.' + sale.transaction.orderA.amountS)*100,backgroundColor: 'green'}}>&nbsp;</span> : undefined }
+                </p>{sale.transaction.orderA ? <span style={{display: 'block',maxWidth: parseFloat('0.' + sale.transaction.orderA.amountS) * 100 + "vw", backgroundColor: 'green'}}>&nbsp;</span> : undefined }
                 </div>
               )
                 
