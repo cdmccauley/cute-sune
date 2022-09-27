@@ -20,8 +20,10 @@ export default async function handler(req, res) {
     // acutal...
     // https://api.nft.gamestop.com/nft-svc-marketplace/getNft?tokenIdAndContractAddress=0xba836091a09eb7e199ce32865efb70a76674e87cf8037d2d5c296ee65bb57616_0x0c589fcd20f99a4a1fe031f50079cfc630015184
 
+    // looks like this call can get the last 100 sales
     let gs = 'https://api.nft.gamestop.com/nft-svc-marketplace/history?nftData='
-    let nft = '0x23579b59c1f48abc2435245e54b73b0b6f37c3a0c820e408d687a4a1979e6b41' // can come from api/loopring
+    let nft = '0x1e2b9a67aebb2e2fa4a6f30f25fb261791f4c5493c413445b93bbc22d66f266b' // cape
+    // let nft = '0x23579b59c1f48abc2435245e54b73b0b6f37c3a0c820e408d687a4a1979e6b41' // cute-sune, can come from api/loopring
     let url = gs + nft
     // console.log(url)
     // let url = 'https://api.nft.gamestop.com/nft-svc-marketplace/history?nftData=0x23579b59c1f48abc2435245e54b73b0b6f37c3a0c820e408d687a4a1979e6b41'

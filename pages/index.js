@@ -17,9 +17,6 @@ export default function Home({ isConnected }) {
     .catch(err => console.log(err))
   },[])
 
-  
-
-
   return (
     <div className="container">
       <Head>
@@ -49,13 +46,20 @@ export default function Home({ isConnected }) {
         </p> */}
 
         <div>
-          {/* {
+          {
             nftData ? nftData.map(
-              (sale) => <p> {
-                sale.transaction.orderA ? sale.transaction.orderA.amountB + ' ' + parseFloat('0.' + sale.transaction.orderA.amountS) : undefined
-                } </p>
+              (sale) => (
+                <div>
+                <p style={{display: "inline"}}> 
+                  {sale.transaction.orderA ? sale.transaction.orderA.amountB + ' ' + parseFloat('0.' + sale.transaction.orderA.amountS) : undefined}
+                </p>{sale.transaction.orderA ? <span style={{display: 'block',maxWidth: parseFloat('0.' + sale.transaction.orderA.amountS)*100,backgroundColor: 'green'}}>&nbsp;</span> : undefined }
+                </div>
+              )
+                
             ) : undefined
-          } */}
+            // last 100 tx
+            // nftData ? nftData.length : undefined
+          }
           {/* <a href="https://nextjs.org/docs" className="card">
             <h3>Documentation &rarr;</h3>
             <p>Find in-depth information about Next.js features and API.</p>

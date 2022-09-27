@@ -44,8 +44,17 @@ export default async function handler(req, res) {
 
     // csRes.loopringNftInfo.nftData[0] to get nft id for history lookup
 
-    let tokenId = '0x40f58569af6691117ac0d9df22e295726fd011fdfbff143f1da5f08aae7ff541'
-    let contractAddress = '0x9d8ddad8f046c7aea4180eb94596f9421c31e622'
+    // call api/parse?gs=GSURL to get these
+    // return looks like { token: '', contract: '' }
+
+    // cape
+    let contractAddress = "0x0c589fcd20f99a4a1fe031f50079cfc630015184"
+    let tokenId = "0xba836091a09eb7e199ce32865efb70a76674e87cf8037d2d5c296ee65bb57616"
+
+    // cute-sune
+    // let tokenId = '0x40f58569af6691117ac0d9df22e295726fd011fdfbff143f1da5f08aae7ff541'
+    // let contractAddress = '0x9d8ddad8f046c7aea4180eb94596f9421c31e622'
+
     let l2IdUrl = 'https://api.nft.gamestop.com/nft-svc-marketplace/getNft?tokenIdAndContractAddress=' + tokenId + '_' + contractAddress
 
     await fetch(l2IdUrl)
