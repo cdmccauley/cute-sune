@@ -1,17 +1,18 @@
 export default async function handler(req, res) {
-    // right now only parsing gs url so this can change as more parsing is needed
+    console.log('parse')
+
     let result = { 
         contract: undefined,
         token: undefined
     }
 
-    // check query
-    if (req.query.gs && req.query.gs.includes("https://nft.gamestop.com/token/")) {
-        // parsing gs url
-        result = req.query.gs.replace(/https:\/\/nft.gamestop.com\/token\//i, "").split(/\//i)
-        result = { 
-            contract: result[0],
-            token: result[1]
+    if (req.query.key && req.query.key === process.env.CUTE_SUNE_API_KEY) {
+        if (req.query.gs && req.query.gs.includes("https://nft.gamestop.com/token/")) {
+            result = req.query.gs.replace(/https:\/\/nft.gamestop.com\/token\//i, "").split(/\//i)
+            result = { 
+                contract: result[0],
+                token: result[1]
+            }
         }
     }
 
