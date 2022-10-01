@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react'
 import Head from 'next/head'
 import clientPromise from '../lib/mongodb'
 
+import Chart from 'chart.js/auto'
+import { Line } from "react-chartjs-2";
+
 export default function Home({ isConnected }) {
 
   const [gsInput, setGsInput] = useState(undefined);
@@ -55,15 +58,47 @@ export default function Home({ isConnected }) {
   )
 
   if (history) {
+    // orderA.tokenB = 32810
+    history.reverse()
+    console.log('history', history.filter((sale) => sale.transaction.orderA && sale.transaction.orderA.amountS < 250000000000000000000))
+
+    const labels = Array.from(history.filter((sale) => sale.transaction.orderA && sale.transaction.orderA.amountS < 250000000000000000000).keys()) // don't reverse, doesn't matter
+  
+    // reverse, data is newest first, want olded first?
+    const data = {
+      labels: labels,
+      datasets: [{
+        label: 'GSM TX History (Filtered)',
+        backgroundColor: 'rgb(0, 0, 0)',
+        borderColor: 'rgb(128, 128, 128)',
+        data: history.filter((sale) => sale.transaction.orderA && sale.transaction.orderA.amountS < 250000000000000000000).map(sale => sale.transaction.orderA ? (parseFloat(sale.transaction.orderA.amountS) * 1e-18) / parseFloat(sale.transaction.orderA.amountB) : 0),
+      }]
+    };
+
+    // const config = {
+    //   type: 'line',
+    //   data: data,
+    //   options: {}
+    // };
+
+    // const myChart = new Chart(
+    //   document.getElementById('myChart'),
+    //   config
+    // );
+
     return (
-      history ? history.map(
-      (sale) => (
-        <div style={{minWidth: "80vw"}}>
-          <p style={{display: "inline"}}> 
-            {sale.transaction.orderA ? sale.transaction.orderA.amountB + ' ' + (parseFloat(sale.transaction.orderA.amountS) * 1e-18) : undefined}
-          </p>{sale.transaction.orderA ? <span style={{display: 'block',maxWidth: (parseFloat(sale.transaction.orderA.amountS) * 1e-18) * 100 / parseFloat(sale.transaction.orderA.amountB) + "vw", backgroundColor: 'green'}}>&nbsp;</span> : undefined }
-        </div>
-      )) : undefined
+      // history ? history.map(
+      // (sale) => (
+      //   <div style={{minWidth: "80vw"}}>
+      //     <p style={{display: "inline"}}> 
+      //       {sale.transaction.orderA ? sale.transaction.orderA.amountB + ' ' + (parseFloat(sale.transaction.orderA.amountS) * 1e-18) : undefined}
+      //     </p>{sale.transaction.orderA ? <span style={{display: 'block',maxWidth: (parseFloat(sale.transaction.orderA.amountS) * 1e-18) / parseFloat(sale.transaction.orderA.amountB) * 100 + "vw", backgroundColor: 'green'}}>&nbsp;</span> : undefined }
+      //   </div>
+      // )) : undefined
+      <div>
+      <Line data={data} />
+      <p>*Innacurate data, do not use</p>
+      </div>
     // last 100 tx
     // history ? history.length : undefined
     )
