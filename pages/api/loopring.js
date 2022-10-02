@@ -1,6 +1,4 @@
 export default async function handler(req, res) {
-    console.log('loopring')
-    
     let result = {
         loopring: undefined
     }
@@ -12,7 +10,8 @@ export default async function handler(req, res) {
             .then(response => response.json())
             .then(payload => {
                 result = {
-                    loopring: payload.loopringNftInfo.nftData[0]
+                    loopring: payload.loopringNftInfo.nftData[0],
+                    metaData: payload.metadataJson
                 }
             })
         }

@@ -1,6 +1,4 @@
 export default async function handler(req, res) {
-    console.log('history')
-    
     let result = undefined;
 
     if (req.query.key && req.query.key === process.env.CUTE_SUNE_API_KEY) {

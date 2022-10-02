@@ -1,6 +1,4 @@
 export default async function handler(req, res) {
-    console.log('parse')
-
     let result = { 
         contract: undefined,
         token: undefined
