@@ -134,7 +134,7 @@ export default function Home({ isConnected }) {
 
     console.log('history', history.filter((sale) => sale.transaction.orderA && sale.transaction.orderA.amountS < 250000000000000000000))
 
-    const labels = Array.from(history.filter((sale) => sale.transaction.orderA && sale.transaction.orderA.amountS < 250000000000000000000).keys()) // don't reverse, doesn't matter
+    const labels = Array.from(history.filter((sale) => sale.transaction.orderA && sale.transaction.orderA.amountS < 250000000000000000000)).map((label) => new Date(label.createdAt).toLocaleString())
   
     const data = {
       labels: labels,
