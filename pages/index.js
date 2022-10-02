@@ -30,9 +30,15 @@ export default function Home({ isConnected }) {
 
   useEffect(() => {
     if(nft) {
+      const interval = setInterval(() => {
+        fetch(`/api/history?key=equipped&nft=${nft}`)
+        .then((res) => res.json())
+        .then((payload) => setHistory(payload))
+      }, 300000);
       fetch(`/api/history?key=equipped&nft=${nft}`)
       .then((res) => res.json())
       .then((payload) => setHistory(payload))
+      return () => clearInterval(interval);
     }
   }, [nft])
 
