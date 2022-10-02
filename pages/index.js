@@ -5,6 +5,9 @@ import clientPromise from '../lib/mongodb'
 
 import Chart from 'chart.js/auto'
 import { Line } from "react-chartjs-2";
+import chartTrendline from 'chartjs-plugin-trendline';
+
+
 
 export default function Home({ isConnected }) {
 
@@ -48,6 +51,7 @@ export default function Home({ isConnected }) {
     .then((payload) => setContractToken(payload))
   }
 
+
   if (isLoading) return <p>Loading...</p>
 
   if (!history) return (
@@ -72,6 +76,13 @@ export default function Home({ isConnected }) {
         backgroundColor: 'rgb(0, 0, 0)',
         borderColor: 'rgb(128, 128, 128)',
         data: history.filter((sale) => sale.transaction.orderA && sale.transaction.orderA.amountS < 250000000000000000000).map(sale => sale.transaction.orderA ? (parseFloat(sale.transaction.orderA.amountS) * 1e-18) / parseFloat(sale.transaction.orderA.amountB) : 0),
+        trendlineLinear: {
+            colorMin: "green",
+            colorMax: "red",
+            lineStyle: "line",
+            width: 1,
+            projection: false,
+        }
       }]
     };
 
@@ -96,7 +107,7 @@ export default function Home({ isConnected }) {
       //   </div>
       // )) : undefined
       <div>
-      <Line data={data} />
+      <Line data={data} plugins={[chartTrendline]} />
       <p>*Innacurate data, do not use</p>
       </div>
     // last 100 tx
