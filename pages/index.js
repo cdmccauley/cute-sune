@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
 
-import Head from 'next/head'
-import clientPromise from '../lib/mongodb'
+import Head from "next/head";
+import clientPromise from "../lib/mongodb";
 
-import Chart from 'chart.js/auto'
+import Chart from "chart.js/auto";
 import { Line } from "react-chartjs-2";
-import chartTrendline from 'chartjs-plugin-trendline';
+import chartTrendline from "chartjs-plugin-trendline";
 
 export default function Home({ isConnected }) {
-
   const [gsInput, setGsInput] = useState(undefined);
   const [contractToken, setContractToken] = useState(undefined);
   const [nft, setNft] = useState(undefined);
@@ -17,55 +16,78 @@ export default function Home({ isConnected }) {
   const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
-    if(contractToken) {
-      console.log('contractToken');
-      fetch(`/api/loopring?key=equipped&contract=${contractToken.contract}&token=${contractToken.token}`)
-      .then((res) => res.json())
-      .then((payload) => {
-        setNft(payload.loopring);
-        setInfo(payload.metaData);
-      })
+    if (contractToken) {
+      fetch(
+        `/api/loopring?key=equipped&contract=${contractToken.contract}&token=${contractToken.token}`
+      )
+        .then((res) => res.json())
+        .then((payload) => {
+          setNft(payload.loopring);
+          setInfo(payload.metaData);
+        });
     }
-  }, [contractToken])
+  }, [contractToken]);
 
   useEffect(() => {
-    if(nft) {
+    if (nft) {
       const interval = setInterval(() => {
         fetch(`/api/history?key=equipped&nft=${nft}`)
-        .then((res) => res.json())
-        .then((payload) => setHistory(payload))
+          .then((res) => res.json())
+          .then((payload) =>
+            setHistory(
+              payload
+                .filter(
+                  (sale) =>
+                    sale.transaction.orderA &&
+                    sale.transaction.orderA.amountS < 2000000000000000000
+                )
+                .reverse()
+            )
+          );
       }, 300000);
       fetch(`/api/history?key=equipped&nft=${nft}`)
-      .then((res) => res.json())
-      .then((payload) => setHistory(payload))
+        .then((res) => res.json())
+        .then((payload) =>
+          setHistory(
+            payload
+              .filter(
+                (sale) =>
+                  sale.transaction.orderA &&
+                  sale.transaction.orderA.amountS < 2000000000000000000
+              )
+              .reverse()
+          )
+        );
       return () => clearInterval(interval);
     }
-  }, [nft])
+  }, [nft]);
 
   useEffect(() => {
     if (history) {
-      console.log(history)
       setLoading(false);
     }
-  }, [history])
+  }, [history]);
 
   const start = () => {
     setLoading(true);
     fetch(`/api/parse?key=equipped&gs=${gsInput}`)
-    .then((res) => res.json())
-    .then((payload) => setContractToken(payload))
-  }
+      .then((res) => res.json())
+      .then((payload) => setContractToken(payload));
+  };
 
-  if (isLoading) return (
-    <div>
-      <Head>
-        <title>cute-sune.vercel.app</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+  if (isLoading)
+    return (
+      <div>
+        <Head>
+          <title>"equipped for multiplayer..."</title>
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
 
-      <main><p>Loading...</p></main>
+        <main>
+          <p>Loading...</p>
+        </main>
 
-      <style jsx>
+        <style jsx>
           {`
             .chart {
               width: 80%;
@@ -74,35 +96,40 @@ export default function Home({ isConnected }) {
         </style>
         <style jsx global>
           {`
-            html, body {
+            html,
+            body {
               background-color: #333;
               padding: 0;
               margin: 0;
               font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-              Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-              sans-serif;
+                Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
+                sans-serif;
             }
             * {
               box-sizing: border-box;
             }
           `}
         </style>
-    </div>
-  )
+      </div>
+    );
 
-  if (!history) return (
-    <div>
-      <Head>
-        <title>cute-sune.vercel.app</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+  if (!history)
+    return (
+      <div>
+        <Head>
+          <title>"equipped for multiplayer..."</title>
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
 
-      <main>
-        <input type="text" onChange={(e) => setGsInput(e.target.value)}></input>
-        <input type="button" value="go" onClick={() => start()}></input>
-      </main>
+        <main>
+          <input
+            type="text"
+            onChange={(e) => setGsInput(e.target.value)}
+          ></input>
+          <input type="button" value="go" onClick={() => start()}></input>
+        </main>
 
-      <style jsx>
+        <style jsx>
           {`
             .chart {
               width: 80%;
@@ -111,83 +138,118 @@ export default function Home({ isConnected }) {
         </style>
         <style jsx global>
           {`
-            html, body {
+            html,
+            body {
               background-color: #333;
               padding: 0;
               margin: 0;
               font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-              Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-              sans-serif;
+                Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
+                sans-serif;
             }
             * {
               box-sizing: border-box;
             }
           `}
         </style>
-    </div>
-  )
+      </div>
+    );
 
-  if (info) console.log(info);
+  // if (info) console.log(info);
 
   if (history) {
-    history.reverse()
+    // console.log('maths', 2000000000000000000 * 1e-18)
 
-    console.log('history', history.filter((sale) => sale.transaction.orderA && sale.transaction.orderA.amountS < 250000000000000000000))
+    // console.log('history', history.filter((sale) => sale.transaction.orderA && sale.transaction.orderA.amountS < txAmountCeiling))
 
-    const labels = Array.from(history.filter((sale) => sale.transaction.orderA && sale.transaction.orderA.amountS < 250000000000000000000)).map((label) => new Date(label.createdAt).toLocaleString())
-  
+    // prevents any tx over 2 from showing
+    // not sure how to tell what currency was used for tx
+    // idea is to allow any tx up to 2 eth to show
+
+    const labels = Array.from(history).map((label) =>
+      new Date(label.createdAt).toLocaleString()
+    );
+
     const data = {
       labels: labels,
-      datasets: [{
-        label: info ? info.name : 'NFT Name Not Found',
-        backgroundColor: 'black',
-        borderColor: 'white',
-        data: history.filter((sale) => sale.transaction.orderA && sale.transaction.orderA.amountS < 250000000000000000000).map(sale => sale.transaction.orderA ? (parseFloat(sale.transaction.orderA.amountS) * 1e-18) / parseFloat(sale.transaction.orderA.amountB) : 0),
-        trendlineLinear: {
+      datasets: [
+        {
+          label: info ? info.name : "NFT Name Not Found",
+          backgroundColor: "black",
+          borderColor: "white",
+          data: history.map((sale) =>
+            sale.transaction.orderA
+              ? (parseFloat(sale.transaction.orderA.amountS) * 1e-18) /
+                parseFloat(sale.transaction.orderA.amountB)
+              : 0
+          ),
+          trendlineLinear: {
             colorMin: "green",
             colorMax: "red",
             lineStyle: "line",
             width: 2,
             projection: false,
+          },
         },
-      }],
+      ],
     };
 
     return (
       <div className="container">
         <Head>
-          <title>cute-sune.vercel.app</title>
+          <title>"equipped for multiplayer..."</title>
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <main>
-          <input type="text" onChange={(e) => setGsInput(e.target.value)}></input>
+          <input
+            type="text"
+            onChange={(e) => setGsInput(e.target.value)}
+          ></input>
           <input type="button" value="go" onClick={() => start()}></input>
           <div className="row">
             <div id="info">
-              <p>{info ? info.name : 'NFT Name Not Found'}</p>
-              <img src={`https://www.gstop-content.com/ipfs/${info ? info.image.match(/(?<=.{7}).+/i) : undefined}`} />
+              <a href={gsInput} target="_blank">
+                <p>{info ? info.name : "NFT Name Not Found"}</p>
+                <img
+                  src={`https://www.gstop-content.com/ipfs/${
+                    info ? info.image.match(/(?<=.{7}).+/i) : undefined
+                  }`}
+                />
+              </a>
             </div>
-            <Line id="chart" data={data} plugins={[chartTrendline]} options={{scales:{y:{beginAtZero:true}}}} />
+            <Line
+              id="chart"
+              data={data}
+              plugins={[chartTrendline]}
+              options={{
+                scales: { y: { beginAtZero: true } },
+              }}
+            />
           </div>
-          <p>DATA INNACURATE, OUTDATED AND NOT COMPLETE</p>
+          <p>
+            * DATA INACCURATE, OUTDATED, NOT COMPLETE AND DOES NOT CONSTITUTE
+            ANY TYPE OF FINANCIAL ADVICE.
+          </p>
         </main>
 
-        <style jsx>
-          {``}
-        </style>
+        <style jsx>{``}</style>
         <style jsx global>
           {`
-            html, body {
+            html,
+            body {
               background-color: #333;
               padding: 10px;
               margin: 0;
               font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-              Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-              sans-serif;
+                Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
+                sans-serif;
             }
             main {
               color: white;
               max-width: 80vw;
+            }
+            a {
+              color: white;
             }
             .row {
               display: flex;
@@ -200,7 +262,6 @@ export default function Home({ isConnected }) {
             }
             img {
               max-width: 147px;
-
             }
             #chart {
               flex: 50%;
@@ -211,13 +272,13 @@ export default function Home({ isConnected }) {
           `}
         </style>
       </div>
-    )
+    );
   }
 }
 
 export async function getServerSideProps(context) {
   try {
-    await clientPromise
+    await clientPromise;
     // `await clientPromise` will use the default database passed in the MONGODB_URI
     // However you can use another database (e.g. myDatabase) by replacing the `await clientPromise` with the following code:
     //
@@ -229,11 +290,11 @@ export async function getServerSideProps(context) {
 
     return {
       props: { isConnected: true },
-    }
+    };
   } catch (e) {
-    console.error(e)
+    console.error(e);
     return {
       props: { isConnected: false },
-    }
+    };
   }
 }
