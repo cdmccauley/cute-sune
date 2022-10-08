@@ -39,7 +39,7 @@ export default function Home({ isConnected }) {
                 .filter(
                   (sale) =>
                     sale.transaction.orderA &&
-                    sale.transaction.orderA.amountS < 2000000000000000000
+                    sale.transaction.orderA.amountS < 4000000000000000000
                 )
                 .reverse()
             )
@@ -53,7 +53,7 @@ export default function Home({ isConnected }) {
               .filter(
                 (sale) =>
                   sale.transaction.orderA &&
-                  sale.transaction.orderA.amountS < 2000000000000000000
+                  sale.transaction.orderA.amountS < 4000000000000000000
               )
               .reverse()
           )
@@ -158,7 +158,7 @@ export default function Home({ isConnected }) {
   // if (info) console.log(info);
 
   if (history) {
-    // console.log('maths', 2000000000000000000 * 1e-18)
+    // console.log('maths', 4000000000000000000 * 1e-18)
 
     // console.log('history', history.filter((sale) => sale.transaction.orderA && sale.transaction.orderA.amountS < txAmountCeiling))
 
