@@ -80,7 +80,7 @@ export default function Home({ isConnected }) {
       <div>
         <Head>
           <title>"equipped for multiplayer..."</title>
-          <link rel="icon" href="/favicon.ico" />
+          <link rel="icon" href="/favicon.png" />
         </Head>
 
         <main>
@@ -118,7 +118,7 @@ export default function Home({ isConnected }) {
       <div>
         <Head>
           <title>"equipped for multiplayer..."</title>
-          <link rel="icon" href="/favicon.ico" />
+          <link rel="icon" href="/favicon.png" />
         </Head>
 
         <main>
@@ -198,7 +198,7 @@ export default function Home({ isConnected }) {
       <div className="container">
         <Head>
           <title>"equipped for multiplayer..."</title>
-          <link rel="icon" href="/favicon.ico" />
+          <link rel="icon" href="/favicon.png" />
         </Head>
         <main>
           <input
