@@ -72,7 +72,7 @@ export default function Home({ isConnected }) {
     setLoading(true);
     fetch(`/api/parse?key=equipped&gs=${gsInput}`)
       .then((res) => res.json())
-      .then((payload) => setContractToken(payload));
+      .then((payload) => setContractToken(payload)); // disables the app
   };
 
   if (isLoading)
@@ -193,6 +193,11 @@ export default function Home({ isConnected }) {
         },
       ],
     };
+
+    // if (data) console.log(data);
+    if (history) {
+      console.log(history);
+    }
 
     return (
       <div className="container">
