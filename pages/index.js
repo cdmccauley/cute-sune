@@ -12,6 +12,7 @@ export default function Home({ isConnected }) {
   const [contractToken, setContractToken] = useState(undefined);
   const [nft, setNft] = useState(undefined);
   const [info, setInfo] = useState(undefined);
+  const [nftId, setNftId] = useState(undefined);
   const [history, setHistory] = useState(undefined);
   const [isLoading, setLoading] = useState(false);
 
@@ -22,6 +23,7 @@ export default function Home({ isConnected }) {
       )
         .then((res) => res.json())
         .then((payload) => {
+          setNftId(payload.nftId);
           setNft(payload.loopring);
           setInfo(payload.metaData);
         });
@@ -65,6 +67,10 @@ export default function Home({ isConnected }) {
   useEffect(() => {
     if (history) {
       setLoading(false);
+      // orders feature
+      fetch(`/api/orders?key=equipped&nft=${nftId}`)
+        .then((res) => res.json())
+        .then((payload) => console.log(payload.map(order => parseFloat(order.pricePerNft * 1e-18)).sort((a, b) => b - a).reverse()));
     }
   }, [history]);
 
