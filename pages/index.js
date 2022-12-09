@@ -13,6 +13,7 @@ export default function Home({ isConnected }) {
   const [nft, setNft] = useState(undefined);
   const [info, setInfo] = useState(undefined);
   const [nftId, setNftId] = useState(undefined);
+  const [orders, setOrders] = useState(undefined);
   const [history, setHistory] = useState(undefined);
   const [isLoading, setLoading] = useState(false);
 
@@ -70,7 +71,7 @@ export default function Home({ isConnected }) {
       // orders feature
       fetch(`/api/orders?key=equipped&nft=${nftId}`)
         .then((res) => res.json())
-        .then((payload) => console.log(payload.map(order => parseFloat(order.pricePerNft * 1e-18)).sort((a, b) => b - a).reverse()));
+        .then((payload) => setOrders(payload.map(order => parseFloat(order.pricePerNft * 1e-18)).sort((a, b) => b - a).reverse()));
     }
   }, [history]);
 
@@ -201,9 +202,8 @@ export default function Home({ isConnected }) {
     };
 
     // if (data) console.log(data);
-    if (history) {
-      console.log(history);
-    }
+    // if (history) console.log(history);
+    if (orders) console.log(orders);
 
     return (
       <div className="container">
@@ -227,6 +227,7 @@ export default function Home({ isConnected }) {
                   }`}
                 />
               </a>
+              {orders ? <div><p style={{marginBottom: 0}}>{`Prices (10/${orders.length})`}</p><ul>{orders.slice(0,10).map(o => <li>{`${o.toFixed(4)}`}</li>)}</ul></div> : undefined}
             </div>
             <Line
               id="chart"
@@ -276,6 +277,11 @@ export default function Home({ isConnected }) {
             }
             #chart {
               flex: 50%;
+            }
+            ul {
+              list-style-type: none;
+              padding-left: 0;
+              margin-top: 0;
             }
             * {
               box-sizing: border-box;
