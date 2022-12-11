@@ -6,6 +6,7 @@ import clientPromise from "../lib/mongodb";
 import Chart from "chart.js/auto";
 import { Line } from "react-chartjs-2";
 import chartTrendline from "chartjs-plugin-trendline";
+import "chartjs-adapter-date-fns";
 
 export default function Home({ isConnected }) {
   const [gsInput, setGsInput] = useState(undefined);
@@ -71,7 +72,14 @@ export default function Home({ isConnected }) {
       // orders feature
       fetch(`/api/orders?key=equipped&nft=${nftId}`)
         .then((res) => res.json())
-        .then((payload) => setOrders(payload.map(order => parseFloat(order.pricePerNft * 1e-18)).sort((a, b) => b - a).reverse()));
+        .then((payload) =>
+          setOrders(
+            payload
+              .map((order) => parseFloat(order.pricePerNft * 1e-18))
+              .sort((a, b) => b - a)
+              .reverse()
+          )
+        );
     }
   }, [history]);
 
@@ -184,12 +192,15 @@ export default function Home({ isConnected }) {
           label: info ? info.name : "NFT Name Not Found",
           backgroundColor: "black",
           borderColor: "white",
-          data: history.map((sale) =>
-            sale.transaction.orderA
-              ? (parseFloat(sale.transaction.orderA.amountS) * 1e-18) /
-                parseFloat(sale.transaction.orderA.amountB)
-              : 0
-          ),
+          data: history.map((sale) => {
+            return {
+              y: sale.transaction.orderA
+                ? (parseFloat(sale.transaction.orderA.amountS) * 1e-18) /
+                  parseFloat(sale.transaction.orderA.amountB)
+                : 0,
+              x: parseFloat(sale.createdAt),
+            };
+          }),
           trendlineLinear: {
             colorMin: "green",
             colorMax: "red",
@@ -203,7 +214,7 @@ export default function Home({ isConnected }) {
 
     // if (data) console.log(data);
     // if (history) console.log(history);
-    if (orders) console.log(orders);
+    //if (orders) console.log(orders);
 
     return (
       <div className="container">
@@ -212,13 +223,22 @@ export default function Home({ isConnected }) {
           <link rel="icon" href="/favicon.png" />
         </Head>
         <main>
-          <input
-            type="text"
-            onChange={(e) => setGsInput(e.target.value)}
-          ></input>
-          <input type="button" value="go" onClick={() => start()}></input>
           <div className="row">
-            <div id="info">
+            <a href={gsInput} target="_blank">
+              <img
+                src={`https://www.gstop-content.com/ipfs/${
+                  info ? info.image.match(/(?<=.{7}).+/i) : undefined
+                }`}
+              />
+            </a>
+            <div>
+              <h1 style={{margin: "0"}}>{info ? info.name : "NFT Name Not Found"}</h1>
+              <p style={{margin: "0"}}>{`Last ${history.length} Sales`}</p>
+              <p style={{ marginTop: 0 }}>{`Listed at ${orders[0].toFixed(4)}`}</p>
+            </div>
+          </div>
+          <div >{/* className="row"> */}
+            {/* <div id="info">
               <a href={gsInput} target="_blank">
                 <p>{info ? info.name : "NFT Name Not Found"}</p>
                 <img
@@ -227,14 +247,44 @@ export default function Home({ isConnected }) {
                   }`}
                 />
               </a>
-              {orders ? <div><p style={{marginBottom: 0}}>{`Prices (10/${orders.length})`}</p><ul>{orders.slice(0,10).map(o => <li>{`${o.toFixed(4)}`}</li>)}</ul></div> : undefined}
-            </div>
+              {orders ? (
+                <div>
+                  <p style={{ marginBottom: 0 }}>{`${orders.length} Listed`}</p>
+                  <p style={{ marginTop: 0, marginBottom: 0 }}>Lowest Price</p>
+                  <p style={{ marginTop: 0 }}>{orders[0].toFixed(4)}</p>
+                </div>
+              ) : undefined}
+              {orders ? (
+                <div>
+                  <p
+                    style={{ marginBottom: 0 }}
+                  >{`Prices (10 of ${orders.length})`}</p>
+                  <ul>
+                    {orders.slice(0, 10).map((o, i) => (
+                      <li key={`${i}`}>{`${o.toFixed(4)}`}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : undefined}
+            </div> */}
             <Line
               id="chart"
               data={data}
               plugins={[chartTrendline]}
               options={{
-                scales: { y: { beginAtZero: true } },
+                plugins: {
+                  legend: {
+                    display: false
+                  }
+                },
+                scales: {
+                  x: {
+                    min: data.datasets[0].data[0].x,
+                    type: "time",
+                    time: { unit: "day" },
+                  },
+                  y: { beginAtZero: true },
+                },
               }}
             />
           </div>
@@ -242,15 +292,20 @@ export default function Home({ isConnected }) {
             * DATA INACCURATE, OUTDATED, NOT COMPLETE AND DOES NOT CONSTITUTE
             ANY TYPE OF FINANCIAL ADVICE.
           </p>
+          <input
+            type="text"
+            onChange={(e) => setGsInput(e.target.value)}
+          ></input>
+          <input type="button" value="go" onClick={() => start()}></input>
         </main>
 
         <style jsx>{``}</style>
         <style jsx global>
           {`
-            html,
+            // html,
             body {
               background-color: #333;
-              padding: 10px;
+              padding: 0 10px 10px 10px;
               margin: 0;
               font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
                 Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
@@ -258,7 +313,7 @@ export default function Home({ isConnected }) {
             }
             main {
               color: white;
-              max-width: 80vw;
+              // max-width: 80vw;
             }
             a {
               color: white;
@@ -266,23 +321,32 @@ export default function Home({ isConnected }) {
             .row {
               display: flex;
               flex-wrap: nowrap;
-              gap: 20px;
+              gap: 10px;
+              // justify-content: space-around;
+              align-items: flex-start;
             }
-            #info {
-              min-width: 147px;
-              flex: 50%;
-            }
+            // #info {
+            //   min-width: 147px;
+            //   flex: 50%;
+            // }
             img {
-              max-width: 147px;
+              // max-width: 147px;
+              max-height: 105px;
+              margin-top: 10px;
+              margin-bottom: 5px;
+              border-radius: 5px;
             }
-            #chart {
-              flex: 50%;
+            h1 {
+
             }
-            ul {
-              list-style-type: none;
-              padding-left: 0;
-              margin-top: 0;
-            }
+            // #chart {
+            //   flex: 50%;
+            // }
+            // ul {
+            //   list-style-type: none;
+            //   padding-left: 0;
+            //   margin-top: 0;
+            // }
             * {
               box-sizing: border-box;
             }
