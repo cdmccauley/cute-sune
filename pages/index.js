@@ -185,13 +185,22 @@ export default function Home({ isConnected }) {
       new Date(label.createdAt).toLocaleString()
     );
 
+    const up = (ctx, value) => ctx.p0.parsed.y <= ctx.p1.parsed.y ? value : undefined;
+    const down = (ctx, value) => ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined;
+
     const data = {
       labels: labels,
       datasets: [
         {
           label: info ? info.name : "NFT Name Not Found",
-          backgroundColor: "black",
-          borderColor: "white",
+          backgroundColor: "white",
+          borderColor: "black",
+          tension: 0.02,
+          pointRadius: 5,
+          segment: {
+            borderWidth: 5,
+            borderColor: ctx => up(ctx, '#259b24') || down(ctx, '#e51c23'),
+          },
           data: history.map((sale) => {
             return {
               y: sale.transaction.orderA
@@ -199,11 +208,11 @@ export default function Home({ isConnected }) {
                   parseFloat(sale.transaction.orderA.amountB)
                 : 0,
               x: parseFloat(sale.createdAt),
-            };
+            }
           }),
           trendlineLinear: {
-            colorMin: "green",
-            colorMax: "red",
+            colorMin: "#259b24",
+            colorMax: "#e51c23",
             lineStyle: "line",
             width: 2,
             projection: false,
@@ -233,8 +242,8 @@ export default function Home({ isConnected }) {
             </a>
             <div>
               <h1 style={{margin: "0"}}>{info ? info.name : "NFT Name Not Found"}</h1>
-              <p style={{margin: "0"}}>{`Last ${history.length} Sales`}</p>
-              <p style={{ marginTop: 0 }}>{`Listed at ${orders[0].toFixed(4)}`}</p>
+              <p style={{margin: "0"}}>{`${history.length} Sales Found`}</p>
+              <p style={{ marginTop: 0 }}>{`Listed at ${orders ? orders[0].toFixed(4) : undefined}`}</p>
             </div>
           </div>
           <div >{/* className="row"> */}
@@ -279,12 +288,28 @@ export default function Home({ isConnected }) {
                 },
                 scales: {
                   x: {
+                    ticks: { 
+                      color: "white",
+                      font: {
+                        size: 14
+                      }
+                    },
                     min: data.datasets[0].data[0].x,
                     type: "time",
                     time: { unit: "day" },
                   },
-                  y: { beginAtZero: true },
+                  y: { 
+                    ticks: { 
+                      color: "white",
+                      font: {
+                        size: 14
+                      },
+                      callback: (v, i, t) => `${v} ETH`
+                    },
+                    beginAtZero: true 
+                  },
                 },
+                
               }}
             />
           </div>
