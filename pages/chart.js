@@ -22,7 +22,6 @@ export default function ChartPage({ isConnected }) {
   const [account, setAccount] = useState(undefined);
   const [holders, setHolders] = useState(undefined);
 
-
   useEffect(() => {
     if (contractToken) {
       fetch(
@@ -78,6 +77,7 @@ export default function ChartPage({ isConnected }) {
 
   useEffect(() => {
     if (nftData) {
+      console.log("nftData", nftData);
       fetch(`/api/account`)
         .then((res) => res.json())
         .then((account) => setAccount(account));
@@ -86,6 +86,7 @@ export default function ChartPage({ isConnected }) {
 
   useEffect(() => {
     if (account) {
+      console.log("account", account);
       fetch(`/api/holders`)
         .then((res) => res.json())
         .then((holders) => setHolders(holders));
@@ -94,7 +95,10 @@ export default function ChartPage({ isConnected }) {
 
   useEffect(() => {
     if (holders) {
-      console.log(holders.holders.nftHolders.map(h => h.accountId))
+      console.log(
+        "holders",
+        holders.holders.nftHolders.map((h) => h.accountId)
+      );
       //  https://swr.vercel.app/docs/getting-started
     }
   }, [holders]);
@@ -260,9 +264,9 @@ export default function ChartPage({ isConnected }) {
 
     // if (gsInput) console.log('gsInput', gsInput);
     // if (contractToken) console.log('contractToken', contractToken);
-    if (nft) console.log("nft", nft);
-    if (nftData) console.log("nftData", nftData);
-    if (account) console.log("account", account);
+    // if (nft) console.log("nft", nft);
+    // if (nftData) console.log("nftData", nftData);
+    // if (account) console.log("account", account);
     // if (info) console.log('info', info);
     // if (nftId) console.log('nftId', nftId);
     // if (orders) console.log('orders', orders);
