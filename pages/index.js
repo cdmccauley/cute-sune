@@ -225,6 +225,15 @@ export default function Home({ isConnected }) {
     // if (history) console.log(history);
     //if (orders) console.log(orders);
 
+    if (gsInput) console.log('gsInput', gsInput);
+    if (contractToken) console.log('contractToken', contractToken);
+    if (nft) console.log('nft', nft);
+    if (info) console.log('info', info);
+    if (nftId) console.log('nftId', nftId);
+    if (orders) console.log('orders', orders);
+    if (history) console.log('history', history);
+    if (isLoading) console.log('isLoading', isLoading);
+
     return (
       <div className="container">
         <Head>
@@ -294,7 +303,7 @@ export default function Home({ isConnected }) {
                         size: 14
                       }
                     },
-                    min: data.datasets[0].data[0].x,
+                    min: data.datasets[0].data[0].x, // data.datasets[0].data[0] ? data.datasets[0].data[0].x : get now in epoch
                     type: "time",
                     time: { unit: "day" },
                   },
