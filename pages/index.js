@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import clientPromise from "../lib/mongodb";
 
-import Chart from "chart.js/auto";
+// import Chart from "chart.js/auto";
 import { Line } from "react-chartjs-2";
 import chartTrendline from "chartjs-plugin-trendline";
 import "chartjs-adapter-date-fns";
