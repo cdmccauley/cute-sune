@@ -48,7 +48,7 @@ export default function Home({ isConnected }) {
                 .reverse()
             )
           );
-      }, 300000);
+      }, 20000); // 300000
       fetch(`/api/history?key=equipped&nft=${nft}`)
         .then((res) => res.json())
         .then((payload) =>
