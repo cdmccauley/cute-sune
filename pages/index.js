@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import clientPromise from "../lib/mongodb";
 
-// import Chart from "chart.js/auto";
+import Chart from "chart.js/auto";
 import { Line } from "react-chartjs-2";
 import chartTrendline from "chartjs-plugin-trendline";
 import "chartjs-adapter-date-fns";
@@ -303,7 +303,7 @@ export default function Home({ isConnected }) {
                         size: 14
                       }
                     },
-                    min: data.datasets[0].data[0].x, // data.datasets[0].data[0] ? data.datasets[0].data[0].x : get now in epoch
+                    min: data.datasets[0].data[0] ? data.datasets[0].data[0].x : Date.now(),
                     type: "time",
                     time: { unit: "day" },
                   },
