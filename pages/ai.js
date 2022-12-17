@@ -1,26 +1,42 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Head from "next/head";
 
-export default function MyForm() {
-  // Set up state to store the value of the text input
-  const [inputValue, setInputValue] = useState(null);
+import MonitorRow from "../components/monitor-row";
 
-  // Set up state to store the child components that will be created
+export default function MyForm() {
+  const [inputValue, setInputValue] = useState("");
+  const [gsURL, setGSURL] = useState("");
+  const [gsURLs, setGSURLs] = useState([]);
   const [childComponents, setChildComponents] = useState([]);
 
-  // Handle the submit button being clicked
+  const [soundOff, setSoundOff] = useState(false);
+
+  useEffect(() => {
+    if (soundOff) {
+      console.log("soundOff");
+      setSoundOff(false);
+    }
+  }, [soundOff]);
+
+  useEffect(() => {
+    if (gsURL != "") {
+      setGSURLs([...gsURLs, gsURL]);
+      setInputValue("");
+    }
+  }, [gsURL]);
+
+  useEffect(() => {
+    setChildComponents(
+      gsURLs.map((url) => (
+        <MonitorRow props={{ url, setSoundOff }} key={gsURLs.indexOf(url)} />
+      ))
+    );
+  }, [gsURLs]);
+
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    // Create a new child component with the input value
-    const newChildComponent = <p>{inputValue}</p>
-
-    // Add the new child component to the list of child components
-    setChildComponents((childComponents) => [
-      ...childComponents,
-      newChildComponent,
-    ]);
+    setGSURL(inputValue);
   };
 
   return (
@@ -29,7 +45,6 @@ export default function MyForm() {
         <title>"equipped for multiplayer..."</title>
         <link rel="icon" href="/favicon.png" />
       </Head>
-      {/* The text input field */}
       <main>
         <input
           type="text"
@@ -37,12 +52,10 @@ export default function MyForm() {
           onChange={(e) => setInputValue(e.target.value)}
         />
 
-        {/* The submit button */}
         <button type="submit" onClick={handleSubmit}>
           Submit
         </button>
 
-        {/* The list of child components */}
         {childComponents.map((childComponent) => childComponent)}
       </main>
       <style jsx>{``}</style>
