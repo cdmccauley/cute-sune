@@ -20,16 +20,22 @@ export default function MyForm() {
   }, [soundOff]);
 
   useEffect(() => {
-    if (gsURL != "") {
+    if (gsURL != "" && !gsURLs.includes(gsURL)) {
       setGSURLs([...gsURLs, gsURL]);
-      setInputValue("");
+    } else {
+      // blank or existing, alert
     }
+    setInputValue("");
+    setGSURL("");
   }, [gsURL]);
 
   useEffect(() => {
     setChildComponents(
-      gsURLs.map((url) => (
-        <MonitorRow props={{ url, setSoundOff }} key={gsURLs.indexOf(url)} />
+      gsURLs.map((url, index) => (
+        <MonitorRow
+          props={{ url, setSoundOff, gsURLs, setGSURLs, index }}
+          key={index}
+        />
       ))
     );
   }, [gsURLs]);
@@ -46,15 +52,22 @@ export default function MyForm() {
         <link rel="icon" href="/favicon.png" />
       </Head>
       <main>
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-        />
+        <div id="controls">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+          />
 
-        <button type="submit" onClick={handleSubmit}>
-          Submit
-        </button>
+          <button
+            type="submit"
+            onClick={() => {
+              setGSURL(inputValue);
+            }}
+          >
+            Submit
+          </button>
+        </div>
 
         {childComponents.map((childComponent) => childComponent)}
       </main>
@@ -66,6 +79,7 @@ export default function MyForm() {
             font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
               Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
               sans-serif;
+            padding: 5px;
           }
           main {
             color: white;
@@ -82,10 +96,24 @@ export default function MyForm() {
           }
           img {
             // max-width: 147px;
-            max-height: 105px;
-            margin-top: 10px;
-            margin-bottom: 5px;
+            max-width: 105px;
+            margin: 10px 0 0 0;
             border-radius: 5px;
+          }
+          h3 {
+            margin: 5px 0 0 0;
+          }
+          p {
+            margin: 0;
+          }
+          .remove {
+            flex-grow: 1;
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 10px;
+          }
+          #controls {
+            margin-bottom: 5px;
           }
           * {
             box-sizing: border-box;

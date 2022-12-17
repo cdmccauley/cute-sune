@@ -13,8 +13,8 @@ const usePreviousValue = (value) => {
 };
 
 export default function MonitorRow(props) {
-  // console.log(props)
   const [lowestOrder, setLowestOrder] = useState(Number.MAX_VALUE);
+  const [isListed, setIsListed] = useState(false);
 
   const prevLowestOrder = usePreviousValue(lowestOrder);
 
@@ -29,17 +29,22 @@ export default function MonitorRow(props) {
   );
 
   useEffect(() => {
-    // console.log("lowest order change, prevLowestOrder", prevLowestOrder);
-    // tested and works, if a call to the props state changer breaks it, it's not the condition
-    if (prevLowestOrder && prevLowestOrder != Number.MAX_VALUE && lowestOrder < prevLowestOrder) console.log("settingSoundOff", `${ordersData[0].toFixed(4)} ${ordersData.length} ${loopringData.metaData.name}`)
+    if (
+      prevLowestOrder &&
+      prevLowestOrder != Number.MAX_VALUE &&
+      lowestOrder < prevLowestOrder
+    ) {
+      console.info(loopringData.metaData.name, lowestOrder);
+      props.props.setSoundOff(true);
+    }
   }, [lowestOrder]);
 
   useEffect(() => {
     if (ordersData && ordersData.length > 0) {
-        // console.log('50', ordersData)
-        setLowestOrder(ordersData[0]);
+      setLowestOrder(ordersData[0]);
+      setIsListed(!Number.isNaN(ordersData[0]));
     }
-  }, [ordersData])
+  }, [ordersData]);
 
   if (parseError || loopringError || ordersError)
     return <div>failed to load</div>;
@@ -48,11 +53,31 @@ export default function MonitorRow(props) {
 
   return (
     <div className="row">
-      <p>
-        {`${ordersData[0].toFixed(4)} ${ordersData.length} ${
-          loopringData.metaData.name
-        }`}
-      </p>
+      <a href={props.props.url} target="_blank">
+        <img
+          src={`https://www.gstop-content.com/ipfs/${
+            loopringData
+              ? loopringData.metaData.image.match(/(?<=.{7}).+/i)
+              : undefined
+          }`}
+        />
+      </a>
+      <div>
+        <h3>{`${loopringData.metaData.name}`}</h3>
+        <p>{`${isListed ? ordersData.length : 0} Prices Found`}</p>
+        <p hidden={!isListed}>{`${ordersData[0].toFixed(4)} Lowest Found`}</p>
+      </div>
+      <div className={"remove"}>
+        <button
+          onClick={() =>
+            props.props.setGSURLs(
+              props.props.gsURLs.filter((v, i) => i != props.props.index)
+            )
+          }
+        >
+          Remove
+        </button>
+      </div>
     </div>
   );
 }

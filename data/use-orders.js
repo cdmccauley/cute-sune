@@ -15,12 +15,12 @@ export default function useOrders(props) {
   const ordersError = error;
 
   let ordersData =
-    data && Array.isArray(data)
+    data && Array.isArray(data) && data.length > 0
       ? data
           .map((order) => parseFloat(order.pricePerNft * 1e-18))
           .sort((a, b) => b - a)
           .reverse()
-      : [];
+      : [Number.NaN];
 
   return {
     ordersLoading,
