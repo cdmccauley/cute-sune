@@ -29,14 +29,14 @@ export default function MonitorRow(props) {
   );
 
   useEffect(() => {
-    console.log("lowest order change, prevLowestOrder", prevLowestOrder);
+    // console.log("lowest order change, prevLowestOrder", prevLowestOrder);
     // tested and works, if a call to the props state changer breaks it, it's not the condition
     if (prevLowestOrder && prevLowestOrder != Number.MAX_VALUE && lowestOrder < prevLowestOrder) console.log("settingSoundOff")
   }, [lowestOrder]);
 
   useEffect(() => {
     if (ordersData && ordersData.length > 0) {
-        console.log('50', ordersData)
+        // console.log('50', ordersData)
         setLowestOrder(ordersData[0]);
     }
   }, [ordersData])
