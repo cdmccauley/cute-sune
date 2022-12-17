@@ -31,7 +31,7 @@ export default function MonitorRow(props) {
   useEffect(() => {
     // console.log("lowest order change, prevLowestOrder", prevLowestOrder);
     // tested and works, if a call to the props state changer breaks it, it's not the condition
-    if (prevLowestOrder && prevLowestOrder != Number.MAX_VALUE && lowestOrder < prevLowestOrder) console.log("settingSoundOff")
+    if (prevLowestOrder && prevLowestOrder != Number.MAX_VALUE && lowestOrder < prevLowestOrder) console.log("settingSoundOff", `${ordersData[0].toFixed(4)} ${ordersData.length} ${loopringData.metaData.name}`)
   }, [lowestOrder]);
 
   useEffect(() => {
