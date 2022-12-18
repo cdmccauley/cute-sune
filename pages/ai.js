@@ -11,6 +11,11 @@ export default function MyForm() {
   const [childComponents, setChildComponents] = useState([]);
 
   const [soundOff, setSoundOff] = useState(false);
+  const [notify, setNotify] = useState(false);
+
+  useEffect(() => {
+    if (!("Notification" in window) || Notification.permission === "granted") setNotify(true)
+  })
 
   useEffect(() => {
     if (soundOff) {
@@ -66,6 +71,17 @@ export default function MyForm() {
             }}
           >
             Submit
+          </button>
+
+          <button
+            type="submit"
+            onClick={() => {
+              Notification.requestPermission().then((permission) => {
+                if (permission === 'granted') setNotify(true);
+              });
+            }}
+          >
+            Notify
           </button>
         </div>
 
