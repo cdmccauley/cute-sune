@@ -77,7 +77,7 @@ export default function MonitorBoard() {
             type="submit"
             onClick={() => {
               Notification.requestPermission().then((permission) => {
-                if (permission === "granted") setNotify(true);
+                // if (permission === "granted") setNotify(true);
               });
             }}
           >
