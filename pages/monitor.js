@@ -1,76 +1,141 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import Head from "next/head";
 
-import useParse from "../data/use-parse";
-import useLoopring from "../data/use-loopring";
-import useOrders from "../data/use-orders";
+import Monitor from "../components/monitor";
 
-export default function Montior() {
-  const gsInput =
-    "https://nft.gamestop.com/token/0xe9c7dea6069c11092d006ef5e2d9f838cea01151/0x421c786f85b674befa068dc57866a64483b03d0a49196ce5a3ae3d85c1735c03";
+export default function MonitorBoard() {
+  const [inputValue, setInputValue] = useState("");
+  const [gsURL, setGSURL] = useState("");
+  const [gsURLs, setGSURLs] = useState([]);
+  const [childComponents, setChildComponents] = useState([]);
 
-  const { parseData, parseError, parseLoading } = useParse({ gsInput });
+  const [soundOff, setSoundOff] = useState(false);
+  // const [notify, setNotify] = useState(false);
 
-  const { loopringData, loopringError, loopringLoading } = useLoopring(
-    parseData ? { parseData } : null
-  );
+  // useEffect(() => {
+  //   if (!("Notification" in window) || Notification.permission === "granted") setNotify(true)
+  // })
 
-  const { ordersData, ordersError, ordersLoading } = useOrders(
-    loopringData ? { loopringData } : null
-  );
+  // useEffect(() => {
+  //   if (soundOff) {
+  //     console.log("soundOff");
+  //     setSoundOff(false);
+  //   }
+  // }, [soundOff]);
 
-  if (parseError || loopringError || ordersError)
-    return <div>failed to load</div>;
-  if (parseLoading || loopringLoading || ordersLoading)
-    return <div>loading...</div>;
+  useEffect(() => {
+    if (
+      new RegExp("https://nft.gamestop.com/token/0x[a-zA-Z0-9]*/0x").test(
+        gsURL
+      ) &&
+      !gsURLs.includes(gsURL)
+    ) {
+      setGSURLs([...gsURLs, gsURL]);
+    } else {
+      // invalid or existing, alert
+    }
+    setInputValue("");
+    setGSURL("");
+  }, [gsURL]);
+
+  useEffect(() => {
+    setChildComponents(
+      gsURLs.map((url, index) => (
+        <Monitor
+          props={{ url, setSoundOff, gsURLs, setGSURLs, index }}
+          key={index}
+        />
+      ))
+    );
+  }, [gsURLs]);
 
   return (
-    <div>
+    <>
       <Head>
         <title>"equipped for multiplayer..."</title>
         <link rel="icon" href="/favicon.png" />
       </Head>
       <main>
-        <div className="row">
-            <p>{loopringData.metaData.name} {ordersData[0].toFixed(4)}</p>
-        </div>
-      </main>
+        <div id="controls">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+          />
 
+          <button
+            type="submit"
+            onClick={() => {
+              setGSURL(inputValue);
+            }}
+          >
+            Submit
+          </button>
+
+          <button
+            type="submit"
+            onClick={() => {
+              Notification.requestPermission().then((permission) => {
+                if (permission === "granted") setNotify(true);
+              });
+            }}
+          >
+            Notify
+          </button>
+        </div>
+
+        {childComponents.map((childComponent) => childComponent)}
+      </main>
       <style jsx>{``}</style>
       <style jsx global>
         {`
-            body {
-              background-color: #333;
-              font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-                Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-                sans-serif;
-            }
-            main {
-              color: white;
-            }
-            a {
-              color: white;
-            }
-            .row {
-              display: flex;
-              flex-wrap: nowrap;
-              gap: 10px;
-              // justify-content: space-around;
-              align-items: flex-start;
-            }
-            img {
-              // max-width: 147px;
-              max-height: 105px;
-              margin-top: 10px;
-              margin-bottom: 5px;
-              border-radius: 5px;
-            }
-            * {
-              box-sizing: border-box;
-            }
-          `}
+          body {
+            background-color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
+              Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
+              sans-serif;
+            padding: 5px;
+          }
+          main {
+            color: white;
+          }
+          a {
+            color: white;
+          }
+          .row {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 10px;
+            // justify-content: space-around;
+            align-items: flex-start;
+          }
+          img {
+            // max-width: 147px;
+            max-width: 105px;
+            margin: 10px 0 0 0;
+            border-radius: 5px;
+          }
+          h3 {
+            margin: 5px 0 0 0;
+          }
+          p {
+            margin: 0;
+          }
+          .remove {
+            flex-grow: 1;
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 10px;
+          }
+          #controls {
+            margin-bottom: 5px;
+          }
+          * {
+            box-sizing: border-box;
+          }
+        `}
       </style>
-    </div>
+    </>
   );
 }
