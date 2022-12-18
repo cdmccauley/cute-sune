@@ -13,11 +13,7 @@ const usePreviousValue = (value) => {
 };
 
 export default function MonitorRow(props) {
-  const [lowestOrder, setLowestOrder] = useState(Number.MAX_VALUE);
-  const [isListed, setIsListed] = useState(false);
-
-  const prevLowestOrder = usePreviousValue(lowestOrder);
-
+    const [lowest, setLowest] = useState()
   const { parseData, parseError, parseLoading } = useParse(props.props);
 
   const { loopringData, loopringError, loopringLoading } = useLoopring(
@@ -28,23 +24,25 @@ export default function MonitorRow(props) {
     loopringData ? { loopringData } : null
   );
 
-  useEffect(() => {
-    if (
-      prevLowestOrder &&
-      prevLowestOrder != Number.MAX_VALUE &&
-      lowestOrder < prevLowestOrder
-    ) {
-      console.info(loopringData.metaData.name, lowestOrder);
-      props.props.setSoundOff(true);
-    }
-  }, [lowestOrder]);
+  const prevOrdersData = usePreviousValue(ordersData)
 
   useEffect(() => {
-    if (ordersData && ordersData.length > 0) {
-      setLowestOrder(ordersData[0]);
-      setIsListed(!Number.isNaN(ordersData[0]));
+    // console.log(prevOrdersData, ordersData)
+
+    if (prevOrdersData && prevOrdersData.length > 0 && ordersData.length == 0) setLowest(Number.MAX_VALUE)
+    if (prevOrdersData && prevOrdersData.length == 0 && ordersData.length == 0) setLowest(Number.MAX_VALUE)
+
+    if (prevOrdersData && prevOrdersData[0] == undefined && ordersData[0]) setLowest(ordersData[0])
+
+    if (prevOrdersData && ordersData[0] < lowest) {
+        setLowest(ordersData[0])
+        console.info('soundOff', loopringData.metaData.name, ordersData[0])
+        props.props.setSoundOff(true)
     }
+    
   }, [ordersData]);
+
+//   useEffect(() => console.log('lowest', lowest), [lowest])
 
   if (parseError || loopringError || ordersError)
     return <div>failed to load</div>;
@@ -64,8 +62,8 @@ export default function MonitorRow(props) {
       </a>
       <div>
         <h3>{`${loopringData.metaData.name}`}</h3>
-        <p>{`${isListed ? ordersData.length : 0} Prices Found`}</p>
-        <p hidden={!isListed}>{`${ordersData[0].toFixed(4)} Lowest Found`}</p>
+        <p>{`${ordersData ? ordersData.length : 0} Prices Found`}</p>
+        <p hidden={!ordersData.length > 0}>{`${ordersData.length > 0 ? ordersData[0].toFixed(4) : undefined} Lowest Found`}</p>
       </div>
       <div className={"remove"}>
         <button

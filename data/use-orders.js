@@ -14,13 +14,13 @@ export default function useOrders(props) {
   const ordersLoading = !data && !error;
   const ordersError = error;
 
-  let ordersData =
+  const ordersData =
     data && Array.isArray(data) && data.length > 0
       ? data
           .map((order) => parseFloat(order.pricePerNft * 1e-18))
           .sort((a, b) => b - a)
           .reverse()
-      : [Number.NaN];
+      : data && Array.isArray(data) ? [] : [undefined];
 
   return {
     ordersLoading,
