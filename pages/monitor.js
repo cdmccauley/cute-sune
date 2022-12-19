@@ -25,6 +25,10 @@ export default function MonitorBoard() {
   // }, [soundOff]);
 
   useEffect(() => {
+    if (localStorage.getItem('gsURLs')) setGSURLs(JSON.parse(localStorage.getItem('gsURLs')))
+  }, [])
+
+  useEffect(() => {
     if (
       new RegExp("https://nft.gamestop.com/token/0x[a-zA-Z0-9]*/0x").test(
         gsURL
@@ -32,6 +36,7 @@ export default function MonitorBoard() {
       !gsURLs.includes(gsURL)
     ) {
       setGSURLs([...gsURLs, gsURL]);
+      localStorage.setItem('gsURLs', JSON.stringify([...gsURLs, gsURL]))
     } else {
       // invalid or existing, alert
     }
