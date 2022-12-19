@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 
+import Display from "./display";
+
 import useParse from "../data/use-parse";
 import useLoopring from "../data/use-loopring";
 import useOrders from "../data/use-orders";
@@ -73,7 +75,7 @@ export default function Monitor({ props }) {
           }`}
         />
       </a>
-      <div>
+      <div className="info">
         <h3>{`${loopringData.metaData.name}`}</h3>
         <p>{`${ordersData ? ordersData.length : 0} Prices Found`}</p>
         <p hidden={!ordersData.length > 0}>{`${
@@ -81,12 +83,15 @@ export default function Monitor({ props }) {
         } Lowest Found`}</p>
       </div>
       <div className={"remove"}>
+        <Display props={{ ordersData }} />
         <button
-          onClick={() =>
-            props.setGSURLs(
-              props.gsURLs.filter((v, i) => i != props.index)
-            )
-          }
+          onClick={() => {
+            props.setGSURLs(props.gsURLs.filter((v, i) => i != props.index));
+            localStorage.setItem(
+              "gsURLs",
+              JSON.stringify(props.gsURLs.filter((v, i) => i != props.index))
+            );
+          }}
         >
           Remove
         </button>
