@@ -21,7 +21,7 @@ export default function Display({ props }) {
       <Line
         id="chart"
         data={{
-          labels: props.ordersData.filter(order => order < props.ordersData[0] * 10).map((order, i) => i),
+          labels: props.ordersData.filter(order => order < props.ordersData[0] * 5).map((order, i) => i),
           datasets: [
             {
               backgroundColor: "white",
@@ -33,7 +33,7 @@ export default function Display({ props }) {
                 borderColor: (ctx) =>
                   up(ctx, "#259b24") || down(ctx, "#e51c23"),
               },
-              data: props.ordersData.filter(order => order < props.ordersData[0] * 10).map((order, i) => {
+              data: props.ordersData.filter(order => order < props.ordersData[0] * 5).map((order, i) => {
                 return {
                   y: order.toFixed(4),
                   x: i,
