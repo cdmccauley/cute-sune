@@ -8,7 +8,9 @@ export default function useLoopring(props) {
 
   const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
-  const { data, error, isLoading } = useSWR(contract && token ? url : null, fetcher);
+  const { data, error } = useSWR(contract && token ? url : null, fetcher, {
+    revalidateOnFocus: false,
+  });
 
   const loopringLoading = !data && !error;
   const loopringError = error;

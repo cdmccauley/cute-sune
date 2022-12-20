@@ -1,21 +1,12 @@
-import React, { useEffect, useState, useRef } from "react";
-
-import Display from "./display";
+import React, { useEffect, useRef } from "react";
 
 import useParse from "../data/use-parse";
 import useLoopring from "../data/use-loopring";
 import useOrders from "../data/use-orders";
 
-const usePreviousValue = (value) => {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-};
-
 export default function Monitor({ props }) {
-  const [lowest, setLowest] = useState();
+  const prevOrdersData = useRef([undefined]);
+
   const { parseData, parseError, parseLoading } = useParse(props);
 
   const { loopringData, loopringError, loopringLoading } = useLoopring(
@@ -26,25 +17,17 @@ export default function Monitor({ props }) {
     loopringData ? { loopringData } : null
   );
 
-  const prevOrdersData = usePreviousValue(ordersData);
-
   useEffect(() => {
-    // sold out or delisted, set max lowest so next listing will alert
+    // // sold out or delisted, set max lowest so next listing will alert
     if (prevOrdersData && prevOrdersData.length > 0 && ordersData.length == 0)
-      setLowest(Number.MAX_VALUE);
+      prevOrdersData.current = [Number.MAX_VALUE];
 
     // not listed, set max lowest so next listing will alert
     if (prevOrdersData && prevOrdersData.length == 0 && ordersData.length == 0)
-      setLowest(Number.MAX_VALUE);
+      prevOrdersData.current = [Number.MAX_VALUE];
 
-    // listings have arrived, set current lowest so next lowest will alert
-    if (prevOrdersData && prevOrdersData[0] == undefined && ordersData[0])
-      setLowest(ordersData[0]);
-
-    // lower listing has arrived, set and notify
-    if (prevOrdersData && ordersData[0] < lowest) {
-      setLowest(ordersData[0]);
-
+    // lower listing has arrived, notify
+    if (prevOrdersData && ordersData[0] < prevOrdersData.current[0]) {
       console.info(loopringData.metaData.name, ordersData[0]);
       props.setSoundOff(true);
 
@@ -57,7 +40,15 @@ export default function Monitor({ props }) {
         }`,
       });
     }
+
+    // listings have arrived, set current lowest so next lowest will alert
+    if (prevOrdersData && prevOrdersData[0] == undefined && ordersData[0])
+      prevOrdersData.current = [ordersData[0]];
   }, [ordersData]);
+
+  useEffect(() => {
+    return () => (prevOrdersData.current = [undefined]);
+  }, []);
 
   if (parseError || loopringError || ordersError)
     return <div>Failed to load</div>;
@@ -83,7 +74,6 @@ export default function Monitor({ props }) {
         } Lowest Found`}</p>
       </div>
       <div className={"remove"}>
-        <Display props={{ ordersData }} />
         <button
           onClick={() => {
             props.setGSURLs(props.gsURLs.filter((v, i) => i != props.index));

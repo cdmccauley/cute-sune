@@ -7,7 +7,9 @@ export default function useParse(props) {
 
   const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
-  const { data, error, isLoading } = useSWR(gsInput ? url : null, fetcher);
+  const { data, error } = useSWR(gsInput ? url : null, fetcher, {
+    revalidateOnFocus: false,
+  });
 
   const parseLoading = !data && !error;
   const parseError = error;

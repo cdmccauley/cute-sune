@@ -7,9 +7,9 @@ export default function useOrders(props) {
   const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
   const { data, error } = useSWR(nftId ? url : null, fetcher, {
-    refreshInterval: 60000 * 5, //20000,
+    refreshInterval: 60000 * 5, //5 * 1000,
     refreshWhenHidden: true,
-    revalidateOnFocus: false,
+    revalidateOnFocus: false
   });
 
   const ordersLoading = !data && !error;
