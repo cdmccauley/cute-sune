@@ -1,12 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import useParse from "../data/use-parse";
 import useLoopring from "../data/use-loopring";
 import useOrders from "../data/use-orders";
 
 export default function Monitor({ props }) {
-  const prevOrdersData = useRef([undefined]);
-
   const { parseData, parseError, parseLoading } = useParse(props);
 
   const { loopringData, loopringError, loopringLoading } = useLoopring(
@@ -18,17 +16,31 @@ export default function Monitor({ props }) {
   );
 
   useEffect(() => {
+    localStorage.setItem(props.url, JSON.stringify([]));
+  }, []);
+
+  useEffect(() => {
+    const prevOrdersData = JSON.parse(localStorage.getItem(props.url));
+    
     // // sold out or delisted, set max lowest so next listing will alert
     if (prevOrdersData && prevOrdersData.length > 0 && ordersData.length == 0)
-      prevOrdersData.current = [Number.MAX_VALUE];
+      localStorage.setItem(props.url, JSON.stringify([Number.MAX_VALUE]));
 
     // not listed, set max lowest so next listing will alert
     if (prevOrdersData && prevOrdersData.length == 0 && ordersData.length == 0)
-      prevOrdersData.current = [Number.MAX_VALUE];
+      localStorage.setItem(props.url, JSON.stringify([Number.MAX_VALUE]));
+
+    // listings have arrived, set current lowest so next lowest will alert
+    if (prevOrdersData && prevOrdersData.length == 0 && ordersData[0])
+      localStorage.setItem(props.url, JSON.stringify(ordersData));
 
     // lower listing has arrived, notify
-    if (prevOrdersData && ordersData[0] < prevOrdersData.current[0]) {
-      console.info(loopringData.metaData.name, ordersData[0]);
+    if (prevOrdersData && ordersData[0] < prevOrdersData[0]) {
+      console.info(
+        prevOrdersData[0],
+        loopringData.metaData.name,
+        ordersData[0]
+      );
       props.setSoundOff(true);
 
       new Notification(`${loopringData.metaData.name} Price Alert`, {
@@ -39,16 +51,11 @@ export default function Monitor({ props }) {
             : undefined
         }`,
       });
+      localStorage.setItem(props.url, JSON.stringify(ordersData));
+    } else if (!ordersData.length == 0) {
+      localStorage.setItem(props.url, JSON.stringify(ordersData));
     }
-
-    // listings have arrived, set current lowest so next lowest will alert
-    if (prevOrdersData && prevOrdersData[0] == undefined && ordersData[0])
-      prevOrdersData.current = [ordersData[0]];
   }, [ordersData]);
-
-  useEffect(() => {
-    return () => (prevOrdersData.current = [undefined]);
-  }, []);
 
   if (parseError || loopringError || ordersError)
     return <div>Failed to load</div>;
