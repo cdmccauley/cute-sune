@@ -24,7 +24,7 @@ import useLoopring from "../data/use-loopring";
 import useOrders from "../data/use-orders";
 
 export default function Monitor({ props }) {
-  const [userInterval, setUserInterval] = useState(60000 * 5); // 5m
+  const [userInterval, setUserInterval] = useState(60000); // 60s
 
   const { parseData, parseError, parseLoading } = useParse(props);
 
