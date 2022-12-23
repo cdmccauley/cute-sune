@@ -2,6 +2,18 @@ import React, { useEffect, useState } from "react";
 
 import Head from "next/head";
 
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+
+import theme from "../lib/theme";
+
+import { Container, Stack } from "@mui/material";
+
 import Monitor from "../components/monitor";
 
 export default function MonitorBoard() {
@@ -59,119 +71,48 @@ export default function MonitorBoard() {
   }, [gsURLs]);
 
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <Head>
         <title>"equipped for multiplayer..."</title>
         <link rel="icon" href="/favicon.png" />
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
+      <CssBaseline enableColorScheme />
       <main>
-        <div id="controls" className="row">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-          />
+        <Container>
+          <div>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+            />
 
-          <button
-            type="submit"
-            onClick={() => {
-              setGSURL(inputValue);
-            }}
-          >
-            Submit
-          </button>
+            <button
+              type="submit"
+              onClick={() => {
+                setGSURL(inputValue);
+              }}
+            >
+              Submit
+            </button>
 
-          <button
-            type="submit"
-            onClick={() => {
-              Notification.requestPermission().then((permission) => {
-                // if (permission === "granted") setNotify(true);
-              });
-            }}
-            hidden={notify}
-          >
-            Notify
-          </button>
-        </div>
-
-        {childComponents.map((childComponent) => childComponent)}
+            <button
+              type="submit"
+              onClick={() => {
+                Notification.requestPermission().then((permission) => {
+                  // if (permission === "granted") setNotify(true);
+                });
+              }}
+              hidden={notify}
+            >
+              Notify
+            </button>
+          </div>
+          <Stack spacing={2}>
+            {childComponents.map((childComponent) => childComponent)}
+          </Stack>
+        </Container>
       </main>
-      <style jsx>{``}</style>
-      <style jsx global>
-        {`
-        html {
-          background-color: #ff3cac;
-            background-image: linear-gradient(
-              225deg,
-              #ff3cac 0%,
-              #784ba0 50%,
-              #2b86c5 100%
-            );
-            height: 100%;
-        }
-          body {
-            
-
-            font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-              Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-              sans-serif;
-            padding: 5px;
-          }
-          main {
-            color: white;
-          }
-          a {
-            color: white;
-          }
-          .row {
-            background-color: #333;
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 10px;
-            // justify-content: space-around;
-            align-items: flex-start;
-
-            padding: 10px 20px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
-              0 6px 20px 0 rgba(0, 0, 0, 0.19);
-          }
-          img {
-            // max-width: 147px;
-            max-width: 105px;
-            margin: 10px 0 35px 0;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
-              0 6px 20px 0 rgba(0, 0, 0, 0.19);
-          }
-          h3 {
-            margin: 5px 0 0 0;
-            text-shadow: 2px 2px 2px #111;
-          }
-          p {
-            margin: 0;
-            text-shadow: 2px 2px 2px #222;
-          }
-          .remove {
-            flex-grow: 1;
-            display: flex;
-            justify-content: flex-end;
-            align-items: flex-start;
-            gap: 20px;
-            padding-top: 10px;
-          }
-          #controls {
-            margin-bottom: 15px;
-          }
-          .info {
-            overflow: hidden;
-          }
-          * {
-            box-sizing: border-box;
-          }
-        `}
-      </style>
-    </>
+    </ThemeProvider>
   );
 }

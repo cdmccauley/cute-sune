@@ -1,8 +1,8 @@
 import useSWR from "swr";
 
 export default function useLoopring(props) {
-  const contract = props ? props.parseData.contract : ''
-  const token = props ? props.parseData.token : ''
+  const contract = props ? props.parseData.contract : "";
+  const token = props ? props.parseData.token : "";
 
   const url = `/api/loopring?key=equipped&contract=${contract}&token=${token}`;
 
