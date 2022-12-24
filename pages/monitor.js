@@ -79,12 +79,41 @@ export default function MonitorBoard() {
     setChildComponents(
       gsURLs.map((url, index) => (
         <Monitor
-          props={{ url, setSoundOff, gsURLs, setGSURLs, index }}
+          props={{
+            url,
+            setSoundOff,
+            gsURLs,
+            setGSURLs,
+            index,
+            childMetaData,
+            setChildMetaData,
+          }}
           key={index}
         />
       ))
     );
   }, [gsURLs]);
+
+  useEffect(() => {
+    if (
+      gsURLs.toString() !=
+      gsURLs
+        .sort((a, b) => childMetaData[b].val - childMetaData[a].val)
+        .toString()
+    ) {
+      localStorage.setItem(
+        "gsURLs",
+        JSON.stringify(
+          gsURLs.sort((a, b) => childMetaData[b].val - childMetaData[a].val)
+        )
+      );
+      setGSURLs(
+        Array.from(
+          gsURLs.sort((a, b) => childMetaData[b].val - childMetaData[a].val)
+        )
+      );
+    }
+  }, [childMetaData]);
 
   return (
     <ThemeProvider theme={theme}>

@@ -5,7 +5,6 @@ import {
   Card,
   CardHeader,
   CardContent,
-  CardMedia,
   Typography,
   Box,
   IconButton,
@@ -39,22 +38,42 @@ export default function Monitor({ props }) {
 
   useEffect(() => {
     localStorage.setItem(props.url, JSON.stringify([]));
+    props.setChildMetaData((prevState) => {
+      return {
+        ...prevState,
+        ...{ [props.url]: { val: 0 } },
+      };
+    });
   }, []);
 
   useEffect(() => {
     const prevOrdersData = JSON.parse(localStorage.getItem(props.url));
 
     // // sold out or delisted, set max lowest so next listing will alert
-    if (prevOrdersData && prevOrdersData.length > 0 && ordersData.length == 0)
+    if (
+      prevOrdersData &&
+      prevOrdersData.length >= 0 &&
+      ordersData.length == 0
+    ) {
       localStorage.setItem(props.url, JSON.stringify([Number.MAX_VALUE]));
-
-    // not listed, set max lowest so next listing will alert
-    if (prevOrdersData && prevOrdersData.length == 0 && ordersData.length == 0)
-      localStorage.setItem(props.url, JSON.stringify([Number.MAX_VALUE]));
+      props.setChildMetaData((prevState) => {
+        return {
+          ...prevState,
+          ...{ [props.url]: { val: 0 } },
+        };
+      });
+    }
 
     // listings have arrived, set current lowest so next lowest will alert
-    if (prevOrdersData && prevOrdersData.length == 0 && ordersData[0])
+    if (prevOrdersData && prevOrdersData.length == 0 && ordersData[0]) {
       localStorage.setItem(props.url, JSON.stringify(ordersData));
+      props.setChildMetaData((prevState) => {
+        return {
+          ...prevState,
+          ...{ [props.url]: { val: ordersData[0] } },
+        };
+      });
+    }
 
     // lower listing has arrived, notify
     if (prevOrdersData && ordersData[0] < prevOrdersData[0]) {
@@ -74,8 +93,20 @@ export default function Monitor({ props }) {
         }`,
       });
       localStorage.setItem(props.url, JSON.stringify(ordersData));
+      props.setChildMetaData((prevState) => {
+        return {
+          ...prevState,
+          ...{ [props.url]: { val: ordersData[0] } },
+        };
+      });
     } else if (!ordersData.length == 0) {
       localStorage.setItem(props.url, JSON.stringify(ordersData));
+      props.setChildMetaData((prevState) => {
+        return {
+          ...prevState,
+          ...{ [props.url]: { val: ordersData[0] ? ordersData[0] : 0 } },
+        };
+      });
     }
   }, [ordersData]);
 
