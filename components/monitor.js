@@ -162,7 +162,7 @@ export default function Monitor({ props }) {
               {`${loopringData.metaData.name}`}
             </Link>
 
-            <Box
+            {/* <Box
               sx={{
                 display: "flex",
                 justifyContent: "flex-end",
@@ -184,7 +184,7 @@ export default function Monitor({ props }) {
                 }`}
               </Typography>
               <Typography
-                sx={{ ml: 2 }}
+                sx={{ ml: 2, minWidth: 76 }}
                 variant="h6"
                 component="div"
                 hidden={!ordersData.length > 0}
@@ -198,7 +198,7 @@ export default function Monitor({ props }) {
                     : ".."
                 }`}
               </Typography>
-            </Box>
+            </Box> */}
           </Box>
         }
         action={
@@ -216,6 +216,40 @@ export default function Monitor({ props }) {
           </IconButton>
         }
       />
+      <CardContent sx={{ pt: 0, pb: "16px !important" }}>
+        <Box
+          sx={{
+            display: "flex"
+          }}
+        >
+          {ordersData.length > 0 ? (
+            <EthIcon fontSize="small" sx={{ mt: 0.2, mr: 0.2 }} />
+          ) : undefined}
+
+          <Typography
+            variant="body1"
+            component="div"
+            hidden={!ordersData.length > 0}
+          >
+            {`${ordersData.length > 0 ? ordersData[0].toFixed(4) : undefined}`}
+          </Typography>
+          <Typography
+            sx={{ ml: 2, mr: 1 }}
+            variant="body1"
+            component="div"
+            hidden={!ordersData.length > 0}
+          >
+            {`${ordersData ? ordersData.length : 0}/${
+              holdersData
+                ? holdersData.nftHolders.reduce(
+                    (a, curr) => a + Number.parseInt(curr.amount),
+                    0
+                  )
+                : ".."
+            }`}
+          </Typography>
+        </Box>
+      </CardContent>
       {/* <Box sx={{ display: "flex" }}>
         <CardMedia
           sx={{ height: 64, width: "auto" }}

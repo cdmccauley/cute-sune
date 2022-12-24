@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Head from "next/head";
 
 import { ThemeProvider } from "@mui/material/styles";
+import { StyledEngineProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 
 import "@fontsource/roboto/300.css";
@@ -116,62 +117,63 @@ export default function MonitorBoard() {
   }, [childMetaData]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <Head>
-        <title>"equipped for multiplayer..."</title>
-        <link rel="icon" href="/favicon.png" />
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
-      </Head>
-      <CssBaseline enableColorScheme />
-      <main>
-        <Container>
-          <Stack sx={{ mt: 3 }} spacing={2}>
-            <Card raised={true}>
-              <CardHeader
-                title={
-                  <Box sx={{ display: "flex", gap: 2 }}>
-                    <TextField
-                      size="small"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      id="outlined-basic"
-                      label="URL"
-                      variant="outlined"
-                    />
-                    <Button
-                      variant="outlined"
-                      onClick={() => {
-                        setGSURL(inputValue);
-                      }}
-                    >
-                      Add
-                    </Button>
-                    {!notify ? (
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <Head>
+          <title>"equipped for multiplayer..."</title>
+          <link rel="icon" href="/favicon.png" />
+          <meta name="viewport" content="initial-scale=1, width=device-width" />
+        </Head>
+        <CssBaseline enableColorScheme />
+        <main>
+          <Container>
+            <Stack sx={{ mt: 3, mb: 3 }} spacing={2}>
+              <Card raised={true}>
+                <CardHeader
+                  title={
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <TextField
+                        size="small"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        id="outlined-basic"
+                        label="URL"
+                        variant="outlined"
+                      />
                       <Button
                         variant="outlined"
                         onClick={() => {
-                          Notification.requestPermission().then(
-                            (permission) => {
-                              // if (permission === "granted") setNotify(true);
-                            }
-                          );
+                          setGSURL(inputValue);
                         }}
                       >
-                        Notify
+                        Add
                       </Button>
-                    ) : undefined}
-                  </Box>
-                }
-                action={
-                  <IconButton
-                    aria-label="remove"
-                    onClick={() => console.log("menu?")}
-                  >
-                    <MoreVertIcon sx={{ height: 24, width: 24 }} />
-                  </IconButton>
-                }
-              />
-              {/* <CardContent sx={{ pt: 0 }}>
+                      {!notify ? (
+                        <Button
+                          variant="outlined"
+                          onClick={() => {
+                            Notification.requestPermission().then(
+                              (permission) => {
+                                // if (permission === "granted") setNotify(true);
+                              }
+                            );
+                          }}
+                        >
+                          Notify
+                        </Button>
+                      ) : undefined}
+                    </Box>
+                  }
+                  action={
+                    <IconButton
+                      aria-label="remove"
+                      onClick={() => console.log("menu?")}
+                    >
+                      <MoreVertIcon sx={{ height: 24, width: 24 }} />
+                    </IconButton>
+                  }
+                />
+                {/* <CardContent sx={{ pt: 0 }}>
                 <TextField
                   size="small"
                   value={inputValue}
@@ -201,11 +203,12 @@ export default function MonitorBoard() {
                   Notify
                 </Button>
               </CardContent> */}
-            </Card>
-            {childComponents.map((childComponent) => childComponent)}
-          </Stack>
-        </Container>
-      </main>
-    </ThemeProvider>
+              </Card>
+              {childComponents.map((childComponent) => childComponent)}
+            </Stack>
+          </Container>
+        </main>
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 }
