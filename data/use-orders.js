@@ -21,9 +21,15 @@ export default function useOrders(props) {
   const ordersData =
     data && Array.isArray(data) && data.length > 0
       ? data
-          .map((order) => parseFloat(order.pricePerNft * 1e-18))
-          .sort((a, b) => b - a)
-          .reverse()
+          .map((order) => {
+            if (Number.parseInt(order.amount) > 1)
+              return Array.from({ length: Number.parseInt(order.amount) }, () =>
+                parseFloat(order.pricePerNft * 1e-18)
+              );
+            return parseFloat(order.pricePerNft * 1e-18);
+          })
+          .reduce((a, b) => a.concat(b), [])
+          .sort((a, b) => a - b)
       : data && Array.isArray(data)
       ? []
       : [undefined];

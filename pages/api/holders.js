@@ -3,24 +3,28 @@ export default async function handler(req, res) {
     holders: undefined,
   };
 
-  const nftData =
-    "0x23d96e8df4e62ffc49439f416b0684e3fd5b9d7cccddf73aadd107b44f5eaffa";
-  const offset = "0";
-  const limit = "180";
-  const url = `https://api3.loopring.io/api/v3/nft/info/nftHolders?nftData=${nftData}&offset=${offset}&limit=${limit}`;
+  if (req.query.key && req.query.key === process.env.CUTE_SUNE_API_KEY) {
+    if (req.query.nftData && req.query.offset) {
+      // const nftData =
+      //   "0x23d96e8df4e62ffc49439f416b0684e3fd5b9d7cccddf73aadd107b44f5eaffa";
+      // const offset = "0";
+      const limit = "180";
+      const url = `https://api3.loopring.io/api/v3/nft/info/nftHolders?nftData=${req.query.nftData}&offset=${req.query.offset}&limit=${limit}`;
 
-  await fetch(url, {
-    headers: {
-      Accept: "application/json",
-      "X-API-KEY": process.env.LOOPRING_API_KEY,
-    },
-  })
-    .then((response) => response.json())
-    .then((payload) => {
-      result = {
-        holders: payload,
-      };
-    });
+      await fetch(url, {
+        headers: {
+          Accept: "application/json",
+          "X-API-KEY": process.env.LOOPRING_API_KEY,
+        },
+      })
+        .then((response) => response.json())
+        .then((payload) => {
+          result = {
+            holders: payload,
+          };
+        });
+    }
+  }
 
   res.status(200).json(result);
 }

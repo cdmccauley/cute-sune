@@ -1,36 +1,37 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Link,
-  Paper,
   Card,
   CardHeader,
   CardContent,
   CardMedia,
-  CardActions,
-  Button,
   Typography,
   Box,
   IconButton,
-  Avatar,
 } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
+
+import EthIcon from "../lib/eth-icon";
 
 import Image from "mui-image";
 
 import useParse from "../data/use-parse";
 import useLoopring from "../data/use-loopring";
 import useOrders from "../data/use-orders";
+import useHolders from "../data/use-holders";
 
 export default function Monitor({ props }) {
-  const [userInterval, setUserInterval] = useState(60000); // 60s
+  const [userInterval, setUserInterval] = useState(20000); // 20s
 
   const { parseData, parseError, parseLoading } = useParse(props);
 
   const { loopringData, loopringError, loopringLoading } = useLoopring(
     parseData ? { parseData } : null
   );
+
+  const { holdersData } = useHolders(loopringData ? { loopringData } : null);
 
   const { ordersData, ordersError, ordersLoading } = useOrders(
     loopringData ? { loopringData, userInterval } : null
@@ -79,23 +80,95 @@ export default function Monitor({ props }) {
   }, [ordersData]);
 
   if (parseError || loopringError || ordersError)
-    return <div>Failed to load</div>;
+    return (
+      <Card raised={true}>
+        <CardContent sx={{ pt: 0 }}>
+          <Typography component="div">Failed to load</Typography>
+        </CardContent>
+      </Card>
+    );
   if (parseLoading || loopringLoading || ordersLoading)
-    return <div>Loading...</div>;
+    return (
+      <Card raised={true}>
+        <CardContent sx={{ pt: 0 }}>
+          <Typography component="div">Loading...</Typography>
+        </CardContent>
+      </Card>
+    );
 
   return (
-    <Card>
+    <Card raised={true}>
       <CardHeader
         title={
-          <Link
-            variant="h6"
-            underline="none"
-            href={props.url}
-            target="_blank"
-            rel="noopener"
-          >
-            {`${loopringData.metaData.name}`}
-          </Link>
+          <Box sx={{ display: "flex" }}>
+            <Link
+              sx={{ marginInlineEnd: 1.5 }}
+              underline="none"
+              href={props.url}
+              target="_blank"
+              rel="noopener"
+            >
+              <Image
+                sx={{ borderRadius: 1 }}
+                height="32px"
+                width="auto"
+                src={`https://www.gstop-content.com/ipfs/${
+                  loopringData
+                    ? loopringData.metaData.image.match(/(?<=.{7}).+/i)
+                    : undefined
+                }`}
+                alt={`${loopringData.metaData.name}`}
+              />
+            </Link>
+
+            <Link
+              variant="h6"
+              underline="none"
+              href={props.url}
+              target="_blank"
+              rel="noopener"
+            >
+              {`${loopringData.metaData.name}`}
+            </Link>
+
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                flexGrow: 1,
+                mr: 0.5,
+              }}
+            >
+              {ordersData.length > 0 ? (
+                <EthIcon sx={{ mt: 0.5, mr: 1 }} />
+              ) : undefined}
+
+              <Typography
+                variant="h6"
+                component="div"
+                hidden={!ordersData.length > 0}
+              >
+                {`${
+                  ordersData.length > 0 ? ordersData[0].toFixed(4) : undefined
+                }`}
+              </Typography>
+              <Typography
+                sx={{ ml: 2 }}
+                variant="h6"
+                component="div"
+                hidden={!ordersData.length > 0}
+              >
+                {`${ordersData ? ordersData.length : 0}/${
+                  holdersData
+                    ? holdersData.nftHolders.reduce(
+                        (a, curr) => a + Number.parseInt(curr.amount),
+                        0
+                      )
+                    : ".."
+                }`}
+              </Typography>
+            </Box>
+          </Box>
         }
         action={
           <IconButton
@@ -112,31 +185,28 @@ export default function Monitor({ props }) {
           </IconButton>
         }
       />
-      <Box sx={{ display: "flex" }}>
+      {/* <Box sx={{ display: "flex" }}>
         <CardMedia
+          sx={{ height: 64, width: "auto" }}
           component="img"
-          sx={{ width: 125 }}
-          src={`https://www.gstop-content.com/ipfs/${
+          image={`https://www.gstop-content.com/ipfs/${
             loopringData
               ? loopringData.metaData.image.match(/(?<=.{7}).+/i)
               : undefined
           }`}
-          alt={`${loopringData.metaData.name}`}
+          alt={loopringData.metaData.name}
         />
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <CardContent sx={{pt: 0}}>
-            <Typography component="div">
-              {`${ordersData ? ordersData.length : 0} Prices Found`}
-            </Typography>
-
-            <Typography component="div" hidden={!ordersData.length > 0}>
-              {`${
-                ordersData.length > 0 ? ordersData[0].toFixed(4) : undefined
-              } Lowest Found`}
-            </Typography>
-          </CardContent>
-        </Box>
-      </Box>
+        
+        <CardContent sx={{ pt: 0 }}>
+          <Typography component="div">
+            {loopringData
+              ? loopringData.metaData.description.length > 128
+                ? `${loopringData.metaData.description.slice(0, 128)}...`
+                : loopringData.metaData.description
+              : undefined}
+          </Typography>
+        </CardContent>
+      </Box> */}
     </Card>
   );
 }

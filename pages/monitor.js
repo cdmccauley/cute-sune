@@ -12,7 +12,21 @@ import "@fontsource/roboto/700.css";
 
 import theme from "../lib/theme";
 
-import { Container, Stack } from "@mui/material";
+import {
+  Container,
+  Stack,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  CardHeader,
+  Box,
+  IconButton,
+} from "@mui/material";
+
+import CloseIcon from "@mui/icons-material/Close";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import Monitor from "../components/monitor";
 
@@ -20,6 +34,8 @@ export default function MonitorBoard() {
   const [inputValue, setInputValue] = useState("");
   const [gsURL, setGSURL] = useState("");
   const [gsURLs, setGSURLs] = useState([]);
+
+  const [childMetaData, setChildMetaData] = useState({});
   const [childComponents, setChildComponents] = useState([]);
 
   const [soundOff, setSoundOff] = useState(false);
@@ -80,35 +96,83 @@ export default function MonitorBoard() {
       <CssBaseline enableColorScheme />
       <main>
         <Container>
-          <div>
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-            />
-
-            <button
-              type="submit"
-              onClick={() => {
-                setGSURL(inputValue);
-              }}
-            >
-              Submit
-            </button>
-
-            <button
-              type="submit"
-              onClick={() => {
-                Notification.requestPermission().then((permission) => {
-                  // if (permission === "granted") setNotify(true);
-                });
-              }}
-              hidden={notify}
-            >
-              Notify
-            </button>
-          </div>
-          <Stack spacing={2}>
+          <Stack sx={{ mt: 3 }} spacing={2}>
+            <Card raised={true}>
+              <CardHeader
+                title={
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <TextField
+                      size="small"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      id="outlined-basic"
+                      label="URL"
+                      variant="outlined"
+                    />
+                    <Button
+                      variant="outlined"
+                      onClick={() => {
+                        setGSURL(inputValue);
+                      }}
+                    >
+                      Add
+                    </Button>
+                    {!notify ? (
+                      <Button
+                        variant="outlined"
+                        onClick={() => {
+                          Notification.requestPermission().then(
+                            (permission) => {
+                              // if (permission === "granted") setNotify(true);
+                            }
+                          );
+                        }}
+                      >
+                        Notify
+                      </Button>
+                    ) : undefined}
+                  </Box>
+                }
+                action={
+                  <IconButton
+                    aria-label="remove"
+                    onClick={() => console.log("menu?")}
+                  >
+                    <MoreVertIcon sx={{ height: 24, width: 24 }} />
+                  </IconButton>
+                }
+              />
+              {/* <CardContent sx={{ pt: 0 }}>
+                <TextField
+                  size="small"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  id="outlined-basic"
+                  label="URL"
+                  variant="outlined"
+                />
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    Notification.requestPermission().then((permission) => {
+                      // if (permission === "granted") setNotify(true);
+                    });
+                  }}
+                >
+                  Add
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    Notification.requestPermission().then((permission) => {
+                      // if (permission === "granted") setNotify(true);
+                    });
+                  }}
+                >
+                  Notify
+                </Button>
+              </CardContent> */}
+            </Card>
             {childComponents.map((childComponent) => childComponent)}
           </Stack>
         </Container>
