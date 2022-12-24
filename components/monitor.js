@@ -22,7 +22,7 @@ import useOrders from "../data/use-orders";
 import useHolders from "../data/use-holders";
 
 export default function Monitor({ props }) {
-  const [userInterval, setUserInterval] = useState(60000 * 5); // 20s
+  const [userInterval, setUserInterval] = useState(60000); // 60s
 
   const { parseData, parseError, parseLoading } = useParse(props);
 
@@ -219,32 +219,31 @@ export default function Monitor({ props }) {
       <CardContent sx={{ pt: 0, pb: "16px !important" }}>
         <Box
           sx={{
-            display: "flex"
+            display: "flex",
           }}
         >
-          {ordersData.length > 0 ? (
             <EthIcon fontSize="small" sx={{ mt: 0.2, mr: 0.2 }} />
-          ) : undefined}
 
           <Typography
             variant="body1"
             component="div"
-            hidden={!ordersData.length > 0}
           >
-            {`${ordersData.length > 0 ? ordersData[0].toFixed(4) : undefined}`}
+            {`${ordersData.length > 0 ? ordersData[0].toFixed(4) : "- . - - - -"}`}
           </Typography>
           <Typography
             sx={{ ml: 2, mr: 1 }}
             variant="body1"
             component="div"
-            hidden={!ordersData.length > 0}
+            
           >
             {`${ordersData ? ordersData.length : 0}/${
               holdersData
-                ? holdersData.nftHolders.reduce(
-                    (a, curr) => a + Number.parseInt(curr.amount),
-                    0
-                  )
+                ? holdersData
+                    .map((o) =>
+                      o.holders.nftHolders.map((o) => Number.parseInt(o.amount))
+                    )
+                    .map((a) => a.reduce((total, curr) => total + curr))
+                    .reduce((total, curr) => total + curr)
                 : ".."
             }`}
           </Typography>

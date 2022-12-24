@@ -10,7 +10,9 @@ export default async function handler(req, res) {
       // const offset = "0";
       const limit = "180";
       const url = `https://api3.loopring.io/api/v3/nft/info/nftHolders?nftData=${req.query.nftData}&offset=${req.query.offset}&limit=${limit}`;
-
+      
+      if (Number.parseInt(req.query.offset) > 0) console.log("holders", req.query.offset);
+      
       await fetch(url, {
         headers: {
           Accept: "application/json",

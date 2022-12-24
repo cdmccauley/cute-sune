@@ -18,16 +18,20 @@ export default function useOrders(props) {
   const ordersLoading = !data && !error;
   const ordersError = error;
 
-  // need to filter out fulfilled orders, look at stuff that still has og mints
-
   const ordersData =
     data && Array.isArray(data) && data.length > 0
       ? data
           .map((order) => {
-            if (Number.parseInt(order.amount) > 1)
-              return Array.from({ length: Number.parseInt(order.amount) }, () =>
-                parseFloat(order.pricePerNft * 1e-18)
+            if (Number.parseInt(order.amount) > 1) {
+              return Array.from(
+                {
+                  length:
+                    Number.parseInt(order.amount) -
+                    Number.parseInt(order.fulfilledAmount),
+                },
+                () => parseFloat(order.pricePerNft * 1e-18)
               );
+            }
             return parseFloat(order.pricePerNft * 1e-18);
           })
           .reduce((a, b) => a.concat(b), [])
