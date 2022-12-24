@@ -22,7 +22,7 @@ import useOrders from "../data/use-orders";
 import useHolders from "../data/use-holders";
 
 export default function Monitor({ props }) {
-  const [userInterval, setUserInterval] = useState(20000); // 20s
+  const [userInterval, setUserInterval] = useState(60000 * 5); // 20s
 
   const { parseData, parseError, parseLoading } = useParse(props);
 
@@ -49,7 +49,7 @@ export default function Monitor({ props }) {
   useEffect(() => {
     const prevOrdersData = JSON.parse(localStorage.getItem(props.url));
 
-    // // sold out or delisted, set max lowest so next listing will alert
+    // sold out or delisted, set max lowest so next listing will alert
     if (
       prevOrdersData &&
       prevOrdersData.length >= 0 &&

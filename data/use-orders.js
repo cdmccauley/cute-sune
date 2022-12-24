@@ -18,6 +18,8 @@ export default function useOrders(props) {
   const ordersLoading = !data && !error;
   const ordersError = error;
 
+  // need to filter out fulfilled orders, look at stuff that still has og mints
+
   const ordersData =
     data && Array.isArray(data) && data.length > 0
       ? data
