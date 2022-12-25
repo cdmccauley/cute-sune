@@ -127,7 +127,7 @@ export default function MonitorBoard() {
         <CssBaseline enableColorScheme />
         <main>
           <Container>
-            <Stack sx={{ mt: 3, mb: 3 }} spacing={2}>
+            <Stack sx={{ mt: 2, mb: 2 }} spacing={2}>
               <Card raised={true}>
                 <CardHeader
                   title={

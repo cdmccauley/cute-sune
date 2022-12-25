@@ -131,7 +131,7 @@ export default function Monitor({ props }) {
         title={
           <Box sx={{ display: "flex" }}>
             <Link
-              sx={{ marginInlineEnd: 1.5 }}
+              sx={{ display: "flex", marginInlineEnd: 1.5 }}
               underline="none"
               href={props.url}
               target="_blank"
@@ -140,7 +140,6 @@ export default function Monitor({ props }) {
               <Image
                 sx={{ borderRadius: 1 }}
                 height="32px"
-                width="auto"
                 src={`https://www.gstop-content.com/ipfs/${
                   loopringData
                     ? loopringData.metadataJson.image.match(/(?<=.{7}).+/i)
