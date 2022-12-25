@@ -16,6 +16,8 @@ export default function useLoopring(props) {
   const loopringError = error;
   const loopringData = data;
 
+  // console.log(data)
+
   return {
     loopringLoading,
     loopringError,

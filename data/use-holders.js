@@ -35,6 +35,8 @@ export default function useHolders(props) {
     setSize(Math.ceil(data[0].holders.totalNum / limit));
   }
 
+//   console.log('data', data)
+
   return {
     holdersLoading,
     holdersError,
@@ -45,7 +47,7 @@ export default function useHolders(props) {
 // to parse for total mints (that were never transferred offchain?)
 //   if (props && data)
 //     console.log(
-//       props.loopringData.metaData.name,
+//       props.loopringData.metaDataJson.name,
 //       data
 //         .map((o) => o.holders.nftHolders.map((o) => Number.parseInt(o.amount)))
 //         .map((a) => a.reduce((total, curr) => total + curr))

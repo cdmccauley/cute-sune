@@ -22,11 +22,7 @@ export default async function handler(req, res) {
                 "mode": "cors"
             }).then(response => response.json())
             .then(payload => {
-                result = {
-                    nftId: payload.nftId,
-                    loopring: payload.loopringNftInfo.nftData[0],
-                    metaData: payload.metadataJson
-                }
+                result = payload
             })
         }
     }

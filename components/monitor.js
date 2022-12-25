@@ -30,8 +30,6 @@ export default function Monitor({ props }) {
     parseData ? { parseData } : null
   );
 
-  const { holdersData } = useHolders(loopringData ? { loopringData } : null);
-
   const { ordersData, ordersError, ordersLoading } = useOrders(
     loopringData ? { loopringData, userInterval } : null
   );
@@ -78,13 +76,13 @@ export default function Monitor({ props }) {
     // lower listing has arrived, notify
     if (prevOrdersData && ordersData[0] < prevOrdersData[0]) {
       console.info(
-        loopringData.metaData.name,
+        loopringData.metadataJson.name,
         prevOrdersData[0].toFixed(4),
         ordersData[0].toFixed(4)
       );
       props.setSoundOff(true);
 
-      new Notification(`${loopringData.metaData.name} Price Alert`, {
+      new Notification(`${loopringData.metadataJson.name} Price Alert`, {
         body: `${ordersData[0].toFixed(4)} Lowest Found`,
         icon: `https://www.gstop-content.com/ipfs/${
           loopringData
@@ -145,10 +143,10 @@ export default function Monitor({ props }) {
                 width="auto"
                 src={`https://www.gstop-content.com/ipfs/${
                   loopringData
-                    ? loopringData.metaData.image.match(/(?<=.{7}).+/i)
+                    ? loopringData.metadataJson.image.match(/(?<=.{7}).+/i)
                     : undefined
                 }`}
-                alt={`${loopringData.metaData.name}`}
+                alt={`${loopringData.metadataJson.name}`}
               />
             </Link>
 
@@ -159,7 +157,7 @@ export default function Monitor({ props }) {
               target="_blank"
               rel="noopener"
             >
-              {`${loopringData.metaData.name}`}
+              {`${loopringData.metadataJson.name}`}
             </Link>
 
             {/* <Box
@@ -222,30 +220,18 @@ export default function Monitor({ props }) {
             display: "flex",
           }}
         >
-            <EthIcon fontSize="small" sx={{ mt: 0.2, mr: 0.2 }} />
+          <EthIcon fontSize="small" sx={{ mt: 0.2, mr: 0.2 }} />
 
-          <Typography
-            variant="body1"
-            component="div"
-          >
-            {`${ordersData.length > 0 ? ordersData[0].toFixed(4) : "- . - - - -"}`}
-          </Typography>
-          <Typography
-            sx={{ ml: 2, mr: 1 }}
-            variant="body1"
-            component="div"
-            
-          >
-            {`${ordersData ? ordersData.length : 0}/${
-              holdersData
-                ? holdersData
-                    .map((o) =>
-                      o.holders.nftHolders.map((o) => Number.parseInt(o.amount))
-                    )
-                    .map((a) => a.reduce((total, curr) => total + curr))
-                    .reduce((total, curr) => total + curr)
-                : ".."
+          <Typography variant="body1" component="div">
+            {`${
+              ordersData.length > 0 ? ordersData[0].toFixed(4) : "- . - - - -"
             }`}
+          </Typography>
+          <Typography sx={{ ml: 2, mr: 1 }} variant="body1" component="div">
+            {ordersData && ordersData.length > 0
+              ? `${ordersData.length}/`
+              : undefined}
+            {`${Number.parseInt(loopringData.amount)}`}
           </Typography>
         </Box>
       </CardContent>
@@ -255,18 +241,18 @@ export default function Monitor({ props }) {
           component="img"
           image={`https://www.gstop-content.com/ipfs/${
             loopringData
-              ? loopringData.metaData.image.match(/(?<=.{7}).+/i)
+              ? loopringData.metadataJson.image.match(/(?<=.{7}).+/i)
               : undefined
           }`}
-          alt={loopringData.metaData.name}
+          alt={loopringData.metadataJson.name}
         />
         
         <CardContent sx={{ pt: 0 }}>
           <Typography component="div">
             {loopringData
-              ? loopringData.metaData.description.length > 128
-                ? `${loopringData.metaData.description.slice(0, 128)}...`
-                : loopringData.metaData.description
+              ? loopringData.metadataJson.description.length > 128
+                ? `${loopringData.metadataJson.description.slice(0, 128)}...`
+                : loopringData.metadataJson.description
               : undefined}
           </Typography>
         </CardContent>
