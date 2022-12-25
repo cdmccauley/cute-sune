@@ -3,10 +3,12 @@ import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import clientPromise from "../lib/mongodb";
 
-import Chart from "chart.js/auto";
+import { Chart } from "chart.js/auto";
 import { Line } from "react-chartjs-2";
 import chartTrendline from "chartjs-plugin-trendline";
 import "chartjs-adapter-date-fns";
+
+// ChartJS.register(Tooltip, Legend);
 
 export default function Home({ isConnected }) {
   const [gsInput, setGsInput] = useState(undefined);
@@ -26,8 +28,8 @@ export default function Home({ isConnected }) {
         .then((res) => res.json())
         .then((payload) => {
           setNftId(payload.nftId);
-          setNft(payload.loopring);
-          setInfo(payload.metaData);
+          setNft(payload.loopringNftInfo.nftData[0]);
+          setInfo(payload.metadataJson);
         });
     }
   }, [contractToken]);
@@ -185,13 +187,16 @@ export default function Home({ isConnected }) {
       new Date(label.createdAt).toLocaleString()
     );
 
-    const up = (ctx, value) => ctx.p0.parsed.y <= ctx.p1.parsed.y ? value : undefined;
-    const down = (ctx, value) => ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined;
+    const up = (ctx, value) =>
+      ctx.p0.parsed.y <= ctx.p1.parsed.y ? value : undefined;
+    const down = (ctx, value) =>
+      ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined;
 
     const data = {
       labels: labels,
       datasets: [
         {
+          id: 1,
           label: info ? info.name : "NFT Name Not Found",
           backgroundColor: "white",
           borderColor: "black",
@@ -199,7 +204,7 @@ export default function Home({ isConnected }) {
           pointRadius: 5,
           segment: {
             borderWidth: 5,
-            borderColor: ctx => up(ctx, '#259b24') || down(ctx, '#e51c23'),
+            borderColor: (ctx) => up(ctx, "#259b24") || down(ctx, "#e51c23"),
           },
           data: history.map((sale) => {
             return {
@@ -208,7 +213,7 @@ export default function Home({ isConnected }) {
                   parseFloat(sale.transaction.orderA.amountB)
                 : 0,
               x: parseFloat(sale.createdAt),
-            }
+            };
           }),
           trendlineLinear: {
             colorMin: "#259b24",
@@ -218,6 +223,21 @@ export default function Home({ isConnected }) {
             projection: false,
           },
         },
+        // {
+        //   id: 2,
+        //   label: "TWO",
+        //   backgroundColor: "white",
+        //   borderColor: "black",
+        //   data: history.map((sale) => {
+        //     console.log(history.map(sale => [sale.createdAt, parseInt(sale.transaction.orderA.amountB)].reduce((total, currentValue, currentIndex, arr) => {})));
+        //     return {
+        //       y: sale.transaction.orderA
+        //         ? parseFloat(sale.transaction.orderA.amountB) * .001
+        //         : 0,
+        //       x: parseFloat(sale.createdAt),
+        //     };
+        //   }),
+        // },
       ],
     };
 
@@ -225,14 +245,14 @@ export default function Home({ isConnected }) {
     // if (history) console.log(history);
     //if (orders) console.log(orders);
 
-    if (gsInput) console.log('gsInput', gsInput);
-    if (contractToken) console.log('contractToken', contractToken);
-    if (nft) console.log('nft', nft);
-    if (info) console.log('info', info);
-    if (nftId) console.log('nftId', nftId);
-    if (orders) console.log('orders', orders);
-    if (history) console.log('history', history);
-    if (isLoading) console.log('isLoading', isLoading);
+    // if (gsInput) console.log('gsInput', gsInput);
+    // if (contractToken) console.log('contractToken', contractToken);
+    // if (nft) console.log('nft', nft);
+    // if (info) console.log('info', info);
+    // if (nftId) console.log('nftId', nftId);
+    // if (orders) console.log('orders', orders);
+    // if (history) console.log('history', history);
+    // if (isLoading) console.log('isLoading', isLoading);
 
     return (
       <div className="container">
@@ -250,12 +270,17 @@ export default function Home({ isConnected }) {
               />
             </a>
             <div>
-              <h1 style={{margin: "0"}}>{info ? info.name : "NFT Name Not Found"}</h1>
-              <p style={{margin: "0"}}>{`${history.length} Sales Found`}</p>
-              <p style={{ marginTop: 0 }}>{`Listed at ${orders ? orders[0].toFixed(4) : undefined}`}</p>
+              <h1 style={{ margin: "0" }}>
+                {info ? info.name : "NFT Name Not Found"}
+              </h1>
+              <p style={{ margin: "0" }}>{`${history.length} Sales Found`}</p>
+              <p style={{ marginTop: 0 }}>{`Listed at ${
+                orders ? orders[0].toFixed(4) : undefined
+              }`}</p>
             </div>
           </div>
-          <div >{/* className="row"> */}
+          <div>
+            {/* className="row"> */}
             {/* <div id="info">
               <a href={gsInput} target="_blank">
                 <p>{info ? info.name : "NFT Name Not Found"}</p>
@@ -292,33 +317,34 @@ export default function Home({ isConnected }) {
               options={{
                 plugins: {
                   legend: {
-                    display: false
-                  }
+                    display: false,
+                  },
                 },
                 scales: {
                   x: {
-                    ticks: { 
+                    ticks: {
                       color: "white",
                       font: {
-                        size: 14
-                      }
+                        size: 14,
+                      },
                     },
-                    min: data.datasets[0].data[0] ? data.datasets[0].data[0].x : Date.now(),
+                    min: data.datasets[0].data[0]
+                      ? data.datasets[0].data[0].x
+                      : Date.now(),
                     type: "time",
                     time: { unit: "day" },
                   },
-                  y: { 
-                    ticks: { 
+                  y: {
+                    ticks: {
                       color: "white",
                       font: {
-                        size: 14
+                        size: 14,
                       },
-                      callback: (v, i, t) => `${v} ETH`
+                      callback: (v, i, t) => `${v} ETH`,
                     },
-                    beginAtZero: true 
+                    beginAtZero: true,
                   },
                 },
-                
               }}
             />
           </div>
@@ -371,7 +397,6 @@ export default function Home({ isConnected }) {
               border-radius: 5px;
             }
             h1 {
-
             }
             // #chart {
             //   flex: 50%;

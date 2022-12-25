@@ -86,7 +86,7 @@ export default function Monitor({ props }) {
         body: `${ordersData[0].toFixed(4)} Lowest Found`,
         icon: `https://www.gstop-content.com/ipfs/${
           loopringData
-            ? loopringData.metaData.image.match(/(?<=.{7}).+/i)
+            ? loopringData.metadataJson.image.match(/(?<=.{7}).+/i)
             : undefined
         }`,
       });

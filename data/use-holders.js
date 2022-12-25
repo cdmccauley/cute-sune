@@ -47,7 +47,7 @@ export default function useHolders(props) {
 // to parse for total mints (that were never transferred offchain?)
 //   if (props && data)
 //     console.log(
-//       props.loopringData.metaDataJson.name,
+//       props.loopringData.metadataJson.name,
 //       data
 //         .map((o) => o.holders.nftHolders.map((o) => Number.parseInt(o.amount)))
 //         .map((a) => a.reduce((total, curr) => total + curr))

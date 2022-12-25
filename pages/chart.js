@@ -31,7 +31,7 @@ export default function ChartPage({ isConnected }) {
         .then((payload) => {
           setNftId(payload.nftId);
           setNft(payload.loopring);
-          setInfo(payload.metaData);
+          setInfo(payload.metadataJson);
           // adding prior to hookup
           setLoading(false);
         });
