@@ -36,12 +36,13 @@ export default function Monitor({ props }) {
 
   useEffect(() => {
     localStorage.setItem(props.url, JSON.stringify([]));
-    props.setChildMetaData((prevState) => {
-      return {
-        ...prevState,
-        ...{ [props.url]: { val: 0 } },
-      };
-    });
+    if (props.setChildMetaData)
+      props.setChildMetaData((prevState) => {
+        return {
+          ...prevState,
+          ...{ [props.url]: { val: 0 } },
+        };
+      });
   }, []);
 
   useEffect(() => {
@@ -54,23 +55,25 @@ export default function Monitor({ props }) {
       ordersData.length == 0
     ) {
       localStorage.setItem(props.url, JSON.stringify([Number.MAX_VALUE]));
-      props.setChildMetaData((prevState) => {
-        return {
-          ...prevState,
-          ...{ [props.url]: { val: 0 } },
-        };
-      });
+      if (props.setChildMetaData)
+        props.setChildMetaData((prevState) => {
+          return {
+            ...prevState,
+            ...{ [props.url]: { val: 0 } },
+          };
+        });
     }
 
     // listings have arrived, set current lowest so next lowest will alert
     if (prevOrdersData && prevOrdersData.length == 0 && ordersData[0]) {
       localStorage.setItem(props.url, JSON.stringify(ordersData));
-      props.setChildMetaData((prevState) => {
-        return {
-          ...prevState,
-          ...{ [props.url]: { val: ordersData[0] } },
-        };
-      });
+      if (props.setChildMetaData)
+        props.setChildMetaData((prevState) => {
+          return {
+            ...prevState,
+            ...{ [props.url]: { val: ordersData[0] } },
+          };
+        });
     }
 
     // lower listing has arrived, notify
@@ -80,7 +83,7 @@ export default function Monitor({ props }) {
         prevOrdersData[0].toFixed(4),
         ordersData[0].toFixed(4)
       );
-      props.setSoundOff(true);
+      if (props.setSoundOff) props.setSoundOff(true);
 
       new Notification(`${loopringData.metadataJson.name} Price Alert`, {
         body: `${ordersData[0].toFixed(4)} Lowest Found`,
@@ -91,20 +94,22 @@ export default function Monitor({ props }) {
         }`,
       });
       localStorage.setItem(props.url, JSON.stringify(ordersData));
-      props.setChildMetaData((prevState) => {
-        return {
-          ...prevState,
-          ...{ [props.url]: { val: ordersData[0] } },
-        };
-      });
+      if (props.setChildMetaData)
+        props.setChildMetaData((prevState) => {
+          return {
+            ...prevState,
+            ...{ [props.url]: { val: ordersData[0] } },
+          };
+        });
     } else if (!ordersData.length == 0) {
       localStorage.setItem(props.url, JSON.stringify(ordersData));
-      props.setChildMetaData((prevState) => {
-        return {
-          ...prevState,
-          ...{ [props.url]: { val: ordersData[0] ? ordersData[0] : 0 } },
-        };
-      });
+      if (props.setChildMetaData)
+        props.setChildMetaData((prevState) => {
+          return {
+            ...prevState,
+            ...{ [props.url]: { val: ordersData[0] ? ordersData[0] : 0 } },
+          };
+        });
     }
   }, [ordersData]);
 
@@ -199,18 +204,26 @@ export default function Monitor({ props }) {
           </Box>
         }
         action={
-          <IconButton
-            aria-label="remove"
-            onClick={() => {
-              props.setGSURLs(props.gsURLs.filter((v, i) => i != props.index));
-              localStorage.setItem(
-                "gsURLs",
-                JSON.stringify(props.gsURLs.filter((v, i) => i != props.index))
-              );
-            }}
-          >
-            <CloseIcon sx={{ height: 24, width: 24 }} />
-          </IconButton>
+          props.setGSURLs ? (
+            <IconButton
+              aria-label="remove"
+              onClick={() => {
+                if (props.setGSURLs) {
+                  props.setGSURLs(
+                    props.gsURLs.filter((v, i) => i != props.index)
+                  );
+                  localStorage.setItem(
+                    "gsURLs",
+                    JSON.stringify(
+                      props.gsURLs.filter((v, i) => i != props.index)
+                    )
+                  );
+                }
+              }}
+            >
+              <CloseIcon sx={{ height: 24, width: 24 }} />
+            </IconButton>
+          ) : undefined
         }
       />
       <CardContent sx={{ pt: 0, pb: "16px !important" }}>

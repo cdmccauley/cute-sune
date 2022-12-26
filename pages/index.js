@@ -83,6 +83,24 @@ export default function Home({ isConnected }) {
           )
         );
     }
+
+    if (history) console.log(
+      history.map((sale) =>
+        [
+          sale.createdAt,
+          parseInt(sale.transaction.orderA.amountB),
+        ].reduce((total, currentValue, currentIndex, arr) => {
+          // if currentIndex 0 return [ [cV[0], a] ]
+          // else if total[total.length - 1][0] + 900_000 > cV[0] return 
+          
+          // [ ...total.slice(0, -1)  ]
+
+
+          // every 900_000 after initial
+        })
+      )
+    );
+
   }, [history]);
 
   const start = () => {
@@ -175,6 +193,7 @@ export default function Home({ isConnected }) {
   // if (info) console.log(info);
 
   if (history) {
+    console.log('history', history)
     // console.log('maths', 4000000000000000000 * 1e-18)
 
     // console.log('history', history.filter((sale) => sale.transaction.orderA && sale.transaction.orderA.amountS < txAmountCeiling))
@@ -223,21 +242,30 @@ export default function Home({ isConnected }) {
             projection: false,
           },
         },
-        // {
-        //   id: 2,
-        //   label: "TWO",
-        //   backgroundColor: "white",
-        //   borderColor: "black",
-        //   data: history.map((sale) => {
-        //     console.log(history.map(sale => [sale.createdAt, parseInt(sale.transaction.orderA.amountB)].reduce((total, currentValue, currentIndex, arr) => {})));
-        //     return {
-        //       y: sale.transaction.orderA
-        //         ? parseFloat(sale.transaction.orderA.amountB) * .001
-        //         : 0,
-        //       x: parseFloat(sale.createdAt),
-        //     };
-        //   }),
-        // },
+        {
+          id: 2,
+          label: "TWO",
+          backgroundColor: "white",
+          borderColor: "black",
+          data: history.map((sale) => {
+            
+            return {
+              y: sale.transaction.orderA
+                ? parseFloat(sale.transaction.orderA.amountB) * 0.001
+                : 0,
+              x: parseFloat(sale.createdAt),
+            };
+          }),
+        },
+        // accumulate the time difference into array while accumulating the totals?
+        // new array at threshold?
+        // later can formulate the middle of the start to end for other axis
+        // base on start in x
+        // [5] [2] [0]
+        // sales in block 1, 2, 3...
+
+        // maybe can add zeroes around number to trick the display?
+        // [0, 5, 0] [0, 2, 0] [0, 0, 0] [0, 1, 0]
       ],
     };
 

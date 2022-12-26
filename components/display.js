@@ -4,6 +4,22 @@ import Chart from "chart.js/auto";
 import { Line } from "react-chartjs-2";
 
 export default function Display({ props }) {
+  const LIMITS = {
+    MAX: props.ordersData,
+    INDEX: props.ordersData.slice(0, 10),
+    PERCENT: props.ordersData.filter(
+      (order) => order < props.ordersData[0] * 2.5
+    ),
+  };
+
+  const [limitMethod, setLimitMethod] = useState(
+    props && props.limitMethod ? props.limitMethod : "MAX"
+  );
+
+  useEffect(() => {
+    setLimitMethod(props.limitMethod);
+  }, [props.limitMethod]);
+
   const up = (ctx, value) =>
     ctx.p0.parsed.y <= ctx.p1.parsed.y ? value : undefined;
   const down = (ctx, value) =>
@@ -21,7 +37,7 @@ export default function Display({ props }) {
       <Line
         id="chart"
         data={{
-          labels: props.ordersData.filter(order => order < props.ordersData[0] * 2).map((order, i) => i),
+          labels: LIMITS[limitMethod].map((order, i) => i + 1),
           datasets: [
             {
               backgroundColor: "white",
@@ -33,10 +49,10 @@ export default function Display({ props }) {
                 borderColor: (ctx) =>
                   up(ctx, "#259b24") || down(ctx, "#e51c23"),
               },
-              data: props.ordersData.filter(order => order < props.ordersData[0] * 2).map((order, i) => {
+              data: LIMITS[limitMethod].map((order, i) => {
                 return {
                   y: order.toFixed(4),
-                  x: i,
+                  x: i + 1,
                 };
               }),
               trendlineLinear: {
@@ -63,11 +79,6 @@ export default function Display({ props }) {
                   size: 14,
                 },
               },
-            //   min: data.datasets[0].data[0]
-            //     ? data.datasets[0].data[0].x
-            //     : Date.now(),
-            //   type: "time",
-            //   time: { unit: "day" },
             },
             y: {
               ticks: {
@@ -85,20 +96,3 @@ export default function Display({ props }) {
     </div>
   );
 }
-
-// {
-//     labels: Array.from(props.ordersData).map((order) => order.toString()),
-//     datasets: [
-//       {
-//         backgroundColor: "white",
-//         borderColor: "black",
-//         tension: 0.02,
-//         pointRadius: 5,
-//         segment: {
-//           borderWidth: 5,
-//           borderColor: (ctx) => up(ctx, "#259b24") || down(ctx, "#e51c23"),
-//         },
-//         data: props.ordersData.map((order) => order.toFixed(4)),
-//       },
-//     ],
-//   }
