@@ -29,7 +29,14 @@ export default function History({ props }) {
                 parseFloat(o.transaction.orderA.amountB) <
                 3
           )
-          .sort((a, b) => a.createdAt - b.createdAt)
+          .sort(
+            (a, b) =>
+              a.createdAt - b.createdAt ||
+              (parseFloat(a.transaction.orderA.amountS) * 1e-18) /
+                parseFloat(a.transaction.orderA.amountB) -
+                (parseFloat(b.transaction.orderA.amountS) * 1e-18) /
+                  parseFloat(b.transaction.orderA.amountB)
+          )
       );
   }, [props.history]);
 
@@ -82,8 +89,10 @@ export default function History({ props }) {
   if (history.length == 1)
     return (
       <Typography>
-        {((parseFloat(history[0].transaction.orderA.amountS) * 1e-18) /
-          parseFloat(history[0].transaction.orderA.amountB)).toFixed(4)}
+        {(
+          (parseFloat(history[0].transaction.orderA.amountS) * 1e-18) /
+          parseFloat(history[0].transaction.orderA.amountB)
+        ).toFixed(4)}
       </Typography>
     );
 
