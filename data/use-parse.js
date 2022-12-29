@@ -1,7 +1,6 @@
 import useSWR from "swr";
 
 export default function useParse(props) {
-  // console.log(props);
   const gsInput = props.url;
   const url = `/api/parse?key=equipped&gs=${gsInput}`;
 

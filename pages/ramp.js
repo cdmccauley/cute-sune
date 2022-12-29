@@ -59,16 +59,13 @@ export default function Ramp() {
       : undefined
   );
 
-  if (historyData) console.log('historyData', historyData)
-
   const { ordersData, ordersError, ordersLoading } = useOrders(
     loopringData ? { loopringData, userInterval } : null
   );
 
   useEffect(() => {
-    console.log(new URL(window.location).searchParams.get("url"));
-    const url = new URL(window.location).searchParams.get("url")
-    if (url) setGSURL(url)
+    const url = new URL(window.location).searchParams.get("url");
+    if (url) setGSURL(url);
   }, []);
 
   return (
@@ -153,47 +150,53 @@ export default function Ramp() {
               />
             </Card>
 
-            <Card raised={true}>
-              {ordersData && ordersData[0] ? (
+            {gsURL ? (
+              <Card raised={true}>
                 <Monitor
                   props={{
                     url: gsURL,
                     index: 0,
                   }}
                 />
-              ) : undefined}
-            </Card>
+              </Card>
+            ) : undefined}
 
-            {ordersData && ordersData[0] && historyData ? (
+            {ordersData && historyData ? (
               <Card raised={true} sx={{ p: 2 }}>
                 <CardContent sx={{ display: "flex", gap: 4 }}>
-                  <Box sx={{ flexGrow: 0, width: "50%" }}>
-                    <Typography>{`Discovered Sales (${
-                      historyData.filter(
-                        (o) =>
-                          o.transaction.orderA &&
-                          (parseFloat(o.transaction.orderA.amountS) * 1e-18) /
-                            parseFloat(o.transaction.orderA.amountB) <
-                            3
-                      ).length
-                    })`}</Typography>
-                    <History props={{ history: historyData }} />
-                  </Box>
-                  <Box sx={{ flexGrow: 0, width: "50%" }}>
-                    <Typography>{`Listings (${
-                      limitMethod == "INDEX"
-                        ? "First 10"
-                        : limitMethod == "PERCENT"
-                        ? "Up to 250% current price"
-                        : "All"
-                    })`}</Typography>
-                    <Display
-                      props={{
-                        ordersData: ordersData,
-                        limitMethod: limitMethod,
-                      }}
-                    />
-                  </Box>
+                  {historyData ? (
+                    <Box sx={{ flexGrow: 0, width: "50%" }}>
+                      <Typography>{`Discovered Sales (${
+                        historyData.filter(
+                          (o) =>
+                            o.transaction.orderA &&
+                            (parseFloat(o.transaction.orderA.amountS) * 1e-18) /
+                              parseFloat(o.transaction.orderA.amountB) <
+                              3
+                        ).length
+                      })`}</Typography>
+                      <History props={{ history: historyData }} />
+                    </Box>
+                  ) : undefined}
+                  {ordersData && ordersData[0] ? (
+                    <Box sx={{ flexGrow: 0, width: "50%" }}>
+                      <Typography>{`Listings (${
+                        limitMethod == "INDEX"
+                          ? "First 10"
+                          : limitMethod == "PERCENT"
+                          ? "Up to 250% current price"
+                          : "All"
+                      })`}</Typography>
+                      <Display
+                        props={{
+                          ordersData: ordersData,
+                          limitMethod: limitMethod,
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <Typography>{`Listings (0)`}</Typography>
+                  )}
                 </CardContent>
               </Card>
             ) : undefined}

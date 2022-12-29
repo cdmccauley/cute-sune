@@ -35,8 +35,6 @@ export default function useHolders(props) {
     setSize(Math.ceil(data[0].holders.totalNum / limit));
   }
 
-  // console.log('data', data)
-
   return {
     holdersLoading,
     holdersError,

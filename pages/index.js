@@ -104,10 +104,6 @@ export default function Home({ isConnected }) {
     }
   }, [uuid]);
 
-  // useEffect(() => {
-  //   console.log(introduction);
-  // }, [introduction]);
-
   useEffect(() => {
     if (wallet?.provider) {
       setProvider(new ethers.providers.Web3Provider(wallet.provider, "any"));
@@ -117,7 +113,6 @@ export default function Home({ isConnected }) {
   useEffect(() => {
     if (provider && !signature) {
       const signer = provider.getSigner();
-      console.log("signer", wallet);
       signer.signMessage(introduction.message).then((res) => {
         setSignature(res);
       });
@@ -127,8 +122,9 @@ export default function Home({ isConnected }) {
   useEffect(() => {
     if (introduction && introduction.message && signature)
       console.log(
-        "SIGNATURE",
+        "Signature",
         signature,
+        "create by",
         verifyMessage(introduction.message, signature)
       );
   }, [signature]);

@@ -77,7 +77,6 @@ export default function ChartPage({ isConnected }) {
 
   useEffect(() => {
     if (nftData) {
-      console.log("nftData", nftData);
       fetch(`/api/account`)
         .then((res) => res.json())
         .then((account) => setAccount(account));
@@ -86,7 +85,6 @@ export default function ChartPage({ isConnected }) {
 
   useEffect(() => {
     if (account) {
-      console.log("account", account);
       fetch(`/api/holders`)
         .then((res) => res.json())
         .then((holders) => setHolders(holders));
