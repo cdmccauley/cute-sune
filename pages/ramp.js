@@ -55,9 +55,11 @@ export default function Ramp() {
 
   const { historyData, historyError, historyLoading } = useHistory(
     loopringData && loopringData.loopringNftInfo
-      ? { nft: loopringData.loopringNftInfo.nftData[0] }
+      ? { nft: loopringData.loopringNftInfo.nftData } // passing in the whole nftData
       : undefined
   );
+
+  if (historyData) console.log('historyData', historyData)
 
   const { ordersData, ordersError, ordersLoading } = useOrders(
     loopringData ? { loopringData, userInterval } : null

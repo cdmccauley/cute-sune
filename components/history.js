@@ -82,7 +82,7 @@ export default function History({ props }) {
   }, [labels]);
 
   if (!data || !data.datasets[0].data[0]) {
-    console.log("(Unknown Data Structure)", history ? history : "No history");
+    // console.log("(Unknown Data Structure)", history ? history : "No history");
     return <Typography>{`(Unknown Data Structure)`}</Typography>;
   }
 
@@ -96,7 +96,7 @@ export default function History({ props }) {
       </Typography>
     );
 
-  console.log(history);
+  // console.log(history);
 
   return (
     <div className="display">

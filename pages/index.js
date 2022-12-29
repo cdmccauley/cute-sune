@@ -79,6 +79,7 @@ export default function Home({ isConnected }) {
   // give api keys a ttl and build a clearing mechanism into the endpoints
   // endpoint can check a timestamp of last clear
 
+  // TODO: safely persist uuid on client to reduce db messages
   useEffect(() => {
     if (!uuid) {
       const newUuid = crypto.randomUUID();
