@@ -58,27 +58,6 @@ export default function Home({ isConnected }) {
   const [uuid, setUuid] = useState(undefined);
   const [introduction, setIntroduction] = useState(undefined);
 
-  // send server expected wallet, server generate { expected: message } then store and send
-  // client gets message that triggers signature
-  // client sends signature to
-
-  // stores and sends message expected is key
-  // send server sig, server checks stored message
-
-  // dont send them data unless they can send me the sig
-
-  ////
-
-  // endpoints for message? /api/[message], does the message exist on my server?
-  // endpoints for wallet? /api/[wallet]
-  // endpoints for signature? /api/[signature]
-
-  // onload i create and store your client verify message then send to you (has ttl, every call clears old)
-  // you set client verify as your remote message and sign it
-  // tell me wallet, remote message and sig; if your message exists on file and sig verified and wallet holds, clear message, store and send new api key
-  // give api keys a ttl and build a clearing mechanism into the endpoints
-  // endpoint can check a timestamp of last clear
-
   // TODO: safely persist uuid on client to reduce db messages
   useEffect(() => {
     if (!uuid) {
@@ -114,19 +93,38 @@ export default function Home({ isConnected }) {
     if (provider && !signature) {
       const signer = provider.getSigner();
       signer.signMessage(introduction.message).then((res) => {
-        setSignature(res);
+        setSignature({
+          signature: res,
+          provider: provider.provider.currentAddress,
+        });
       });
     }
   }, [provider]);
 
   useEffect(() => {
-    if (introduction && introduction.message && signature)
-      console.log(
-        "Signature",
-        signature,
-        "create by",
-        verifyMessage(introduction.message, signature)
-      );
+    if (introduction && introduction.message && signature) {
+      console.log({
+        signature: signature,
+        "created by": verifyMessage(introduction.message, signature.signature),
+      });
+      fetch("/api/session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          uuid: uuid,
+          message: introduction.message,
+          wallet: signature.provider,
+          signature: signature.signature,
+        }),
+      })
+        .then((res) => res.json())
+        .then((json) => {
+          // check res for nftdata
+          console.log(json);
+        });
+    }
   }, [signature]);
 
   return (
