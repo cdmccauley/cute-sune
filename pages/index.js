@@ -12,17 +12,29 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import theme from "../lib/theme";
 
-import { Container, Button, Card, CardContent } from "@mui/material";
+import {
+  Container,
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  List,
+  ListItem,
+  Box,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import Monitor from "../components/monitor";
+import Header from "../components/header";
+import Footer from "../components/footer";
 
 import { ethers } from "ethers";
 import { verifyMessage } from "ethers/lib/utils.js";
 
 import injectedModule, { ProviderLabel } from "@web3-onboard/injected-wallets";
-import { init, useConnectWallet } from "@web3-onboard/react";
+import { init, useConnectWallet, useAccountCenter } from "@web3-onboard/react";
 
 const MAINNET_RPC_URL = `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`;
 
@@ -51,12 +63,16 @@ init({
 
 export default function Home({ isConnected }) {
   const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
+  const updateAccountCenter = useAccountCenter();
+  updateAccountCenter({ enabled: false });
+
+  const [uuid, setUuid] = useState(undefined);
+  const [introduction, setIntroduction] = useState(undefined);
 
   const [provider, setProvider] = useState(null);
   const [signature, setSignature] = useState(null);
 
-  const [uuid, setUuid] = useState(undefined);
-  const [introduction, setIntroduction] = useState(undefined);
+  const [session, setSession] = useState(null);
 
   // TODO: safely persist uuid on client to reduce db messages
   useEffect(() => {
@@ -123,6 +139,7 @@ export default function Home({ isConnected }) {
         .then((json) => {
           // check res for nftdata
           console.log(json);
+          setSession(json);
         });
     }
   }, [signature]);
@@ -136,19 +153,29 @@ export default function Home({ isConnected }) {
       </Head>
       <CssBaseline enableColorScheme />
 
-      <Container sx={{ mt: 3 }}>
-        <Card raised={true}>
-          <CardContent>
-            <Button
-              disabled={connecting}
-              variant="outlined"
-              onClick={() => (wallet ? disconnect(wallet) : connect())}
-            >
-              {connecting ? "connecting" : wallet ? "disconnect" : "connect"}
-            </Button>
-          </CardContent>
-        </Card>
-      </Container>
+      <Header props={{ connect, disconnect, connecting, wallet }} />
+
+      {session && Object.keys(session).length > 0 ? (
+        <Footer />
+      ) : (
+        <Grid container spacing={2} minHeight={160}>
+          <Grid
+            item
+            xs
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Typography variant="h6" gutterBottom>
+              {provider && session && Object.keys(session).length == 0
+                ? "Wallet not authorized"
+                : provider
+                ? "Please sign message to complete verification"
+                : "Please connect to begin"}
+            </Typography>
+          </Grid>
+        </Grid>
+      )}
     </ThemeProvider>
   );
 }
