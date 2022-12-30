@@ -1,5 +1,9 @@
 import clientPromise from "../../lib/mongodb";
 
+import { verifyMessage } from "ethers/lib/utils.js";
+
+import crypto from "crypto";
+
 export default async function handler(req, res) {
   // called when client recieves a signature
   // introduction returns message to client
@@ -14,17 +18,29 @@ export default async function handler(req, res) {
       session: undefined,
     };
 
+    // TODO: also clean up apikeys in other endpoints)
     try {
-      //// check message exists
+      //// prepare
       const client = await clientPromise;
       const database = client.db("verification");
       const messages = database.collection("messages");
+      const sessions = database.collection("sessions");
+      const blacklist = database.collection("blacklist");
 
-      // cleanup expired records
+      //// maintain
       const expired = new Date().valueOf() - 8.64e7;
       await messages.deleteMany({ created: { $lt: expired } });
+      await sessions.deleteMany({ created: { $lt: expired } });
 
-      // return existing record
+      //// check blacklist
+      const blacklisted = await blacklist.findOne({
+        _id: req.body.wallet,
+        enabled: true
+      });
+
+      console.log('blacklisted', blacklisted)
+
+      //// check message exists
       const existing = await messages.findOne({
         _id: req.body.uuid,
         message: req.body.message,
@@ -32,48 +48,76 @@ export default async function handler(req, res) {
 
       if (existing) {
         //// check wallet is hodler
-        // need nftdata and accountid
-        // nftdata is cleared nfts
-        const host = process.env.VERCEL_ENV == "production" ? "https://cute-sune.vercel.app" : "http://localhost:3000"
-        fetch(`${host}/api/account`, {
+        const host =
+          process.env.VERCEL_ENV == "production"
+            ? "https://cute-sune.vercel.app"
+            : "http://localhost:3000";
+
+        // await so res is not sent before it has data from inner fetches
+        await fetch(`${host}/api/account`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             key: process.env.CUTE_SUNE_API_KEY,
-            wallet: req.body.wallet
+            wallet: req.body.wallet,
           }),
         })
-          .then((res) => res.json())
-          .then((json) => {
+          .then((accountResponse) => accountResponse.json())
+          .then((accountJson) => {
             // check res for nftdata
-            console.log(json.account.accountId)
+            const nftDatas = [
+              "0x215c32952e02dc4026b712c8848c6d52bf5b6361fe7204f7055400bbfb37ea31",
+            ].toString();
+            const host =
+              process.env.VERCEL_ENV == "production"
+                ? "https://cute-sune.vercel.app"
+                : "http://localhost:3000";
+            return fetch(`${host}/api/balances`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                key: process.env.CUTE_SUNE_API_KEY,
+                accountId: accountJson.account.accountId,
+                nftDatas: nftDatas,
+              }),
+            })
+              .then((balancesResponse) => balancesResponse.json())
+              .then((balancesJson) => balancesJson);
+          })
+          .then(async (balancesResponse) => {
+            //// check signature is message signed by wallet
+            if (
+              balancesResponse.balances.totalNum > 0 &&
+              verifyMessage(req.body.message, req.body.signature) ==
+                req.body.wallet
+            ) {
+              // create or overwrite key
+              await sessions.updateOne(
+                { _id: req.body.wallet },
+                {
+                  $set: {
+                    apiKey: crypto.randomUUID(),
+                    created: new Date().valueOf(),
+                  },
+                },
+                { upsert: true }
+              );
+
+              // get same key from db to give to client
+              const confirm = await sessions.findOne({
+                _id: req.body.wallet,
+              });
+
+              result = {
+                session: confirm,
+              };
+            }
           });
-        // check signature is message signed by wallet
       }
-      //   const client = await clientPromise;
-      //   const database = client.db("verification");
-      //   const messages = database.collection("messages");
-      //   const sessions = database.collection("sessions");
-      //   // cleanup expired records
-      //   const expired = new Date().valueOf() - 8.64e+7;
-      //   await sessions.deleteMany({ created: { $lt: expired } });
-      //   // return existing record
-      //   const existing = await messages.findOne({ _id: req.body.uuid });
-      //   if (existing) result = { introduction: existing };
-      //   // create new record
-      //   if (!existing) {
-      //     const newMessage = crypto.randomUUID();
-      //     await messages.insertOne({
-      //       _id: req.body.uuid,
-      //       message: newMessage,
-      //       created: new Date().valueOf(),
-      //     });
-      //     // return new record
-      //     const confirm = await messages.findOne({ message: newMessage });
-      //     result = { introduction: confirm };
-      //   }
     } catch (e) {
       console.log(e);
     } finally {
@@ -81,3 +125,11 @@ export default async function handler(req, res) {
     }
   }
 }
+
+// Asumi    0x265e9dcc6215b4943f5471a29718aaefdd5b3148c579533410e7357fd044b33e
+// Yamamoto    0x23d96e8df4e62ffc49439f416b0684e3fd5b9d7cccddf73aadd107b44f5eaffa
+// Morikami    0x2bfb305e41512bceac0f71efba3e2e4a553a341afa5f7be5502b31c62e90fdfa
+// Shinju    0x1e172026705448a342c7cc5e8e00b474e6f1621cfb09a11621e1ad5398176cd8
+// Odokuro    0x156eae9c915b5300a12a7b4c13f88ff7e7ea08b2f4a689ec129ab60bcc01e975
+// Hisui    0x0a8dff58caef384db04e85eed9eb7dbb03df6f6df80caac84ae8c6604498b8c9
+// Katana    0x215c32952e02dc4026b712c8848c6d52bf5b6361fe7204f7055400bbfb37ea31
