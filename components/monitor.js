@@ -19,12 +19,14 @@ import Image from "mui-image";
 import useParse from "../data/use-parse";
 import useLoopring from "../data/use-loopring";
 import useOrders from "../data/use-orders";
-import useHolders from "../data/use-holders";
 
 export default function Monitor({ props }) {
   const [userInterval, setUserInterval] = useState(60000); // 60s
+  const [notify, setNotify] = useState(false);
 
-  const { parseData, parseError, parseLoading } = useParse(props);
+  const { parseData, parseError, parseLoading } = useParse(
+    props ? props.url : null
+  );
 
   const { loopringData, loopringError, loopringLoading } = useLoopring(
     parseData ? { parseData } : null
@@ -43,7 +45,16 @@ export default function Monitor({ props }) {
           ...{ [props.url]: { val: 0 } },
         };
       });
+    if (props.notify) {
+      setNotify(true);
+    }
   }, []);
+
+  useEffect(() => {
+    if (props.notify) {
+      setNotify(props.notify);
+    }
+  }, [props.notify]);
 
   useEffect(() => {
     const prevOrdersData = JSON.parse(localStorage.getItem(props.url));
@@ -83,17 +94,20 @@ export default function Monitor({ props }) {
         prevOrdersData[0].toFixed(4),
         ordersData[0].toFixed(4)
       );
-      if (props.setSoundOff) props.setSoundOff(true);
 
-      new Notification(`${loopringData.metadataJson.name} Price Alert`, {
-        body: `${ordersData[0].toFixed(4)} Lowest Found`,
-        icon: `https://www.gstop-content.com/ipfs/${
-          loopringData
-            ? loopringData.metadataJson.image.match(/(?<=.{7}).+/i)
-            : undefined
-        }`,
-      });
+      if (notify && props.setSoundOff) props.setSoundOff(true);
+
+      if (notify)
+        new Notification(`${loopringData.metadataJson.name} Price Alert`, {
+          body: `${ordersData[0].toFixed(4)} Lowest Found`,
+          icon: `https://www.gstop-content.com/ipfs/${
+            loopringData
+              ? loopringData.metadataJson.image.match(/(?<=.{7}).+/i)
+              : undefined
+          }`,
+        });
       localStorage.setItem(props.url, JSON.stringify(ordersData));
+
       if (props.setChildMetaData)
         props.setChildMetaData((prevState) => {
           return {
@@ -113,7 +127,8 @@ export default function Monitor({ props }) {
     }
   }, [ordersData]);
 
-  if (parseError || loopringError || ordersError)
+  if (parseError || loopringError || ordersError) {
+    console.error("Network error", parseError, loopringError, ordersError);
     return (
       <Card raised={true}>
         <CardContent sx={{ pt: 0 }}>
@@ -121,6 +136,7 @@ export default function Monitor({ props }) {
         </CardContent>
       </Card>
     );
+  }
   if (parseLoading || loopringLoading || ordersLoading)
     return (
       <Card raised={true}>
@@ -135,72 +151,67 @@ export default function Monitor({ props }) {
       <CardHeader
         title={
           <Box sx={{ display: "flex" }}>
-            <Link
-              sx={{ display: "flex", marginInlineEnd: 1.5 }}
-              underline="none"
-              href={props.url}
-              target="_blank"
-              rel="noopener"
-            >
-              <Image
-                sx={{ borderRadius: 1 }}
-                height="32px"
-                src={`https://www.gstop-content.com/ipfs/${
-                  loopringData
-                    ? loopringData.metadataJson.image.match(/(?<=.{7}).+/i)
-                    : undefined
-                }`}
-                alt={`${loopringData.metadataJson.name}`}
-              />
-            </Link>
+            <Box sx={{ marginInlineEnd: 1.5 }}>
+              <Link
+                underline="none"
+                href={props.url}
+                target="_blank"
+                rel="noopener"
+              >
+                <Image
+                  sx={{ borderRadius: 1 }}
+                  height="32px"
+                  src={`https://www.gstop-content.com/ipfs/${
+                    loopringData
+                      ? loopringData.metadataJson.image.match(/(?<=.{7}).+/i)
+                      : undefined
+                  }`}
+                  alt={`${loopringData.metadataJson.name}`}
+                />
+              </Link>
+            </Box>
+            <Box>
+              <Link
+                variant="h6"
+                underline="none"
+                href={props.url}
+                target="_blank"
+                rel="noopener"
+              >
+                {`${loopringData.metadataJson.name}`}
+              </Link>
+            </Box>
 
-            <Link
-              variant="h6"
-              underline="none"
-              href={props.url}
-              target="_blank"
-              rel="noopener"
-            >
-              {`${loopringData.metadataJson.name}`}
-            </Link>
-
-            {/* <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                flexGrow: 1,
-                mr: 0.5,
-              }}
+            <Box
+              sx={{ display: "flex", justifyContent: "flex-end", flexGrow: 1 }}
             >
               {ordersData.length > 0 ? (
-                <EthIcon sx={{ mt: 0.5, mr: 1 }} />
+                <EthIcon sx={{ mt: 0.5, mr: 1 }} htmlColor="#7F38EC" />
               ) : undefined}
-
               <Typography
+                sx={{ mr: 1 }}
                 variant="h6"
-                component="div"
+                gutterBottom={false}
                 hidden={!ordersData.length > 0}
               >
                 {`${
-                  ordersData.length > 0 ? ordersData[0].toFixed(4) : undefined
+                  ordersData.length > 0
+                    ? ordersData[0].toFixed(4)
+                    : "- . - - - -"
                 }`}
               </Typography>
               <Typography
-                sx={{ ml: 2, minWidth: 76 }}
+                sx={{ minWidth: "100px", whiteSpace: "pre-wrap" }}
                 variant="h6"
-                component="div"
+                gutterBottom={false}
                 hidden={!ordersData.length > 0}
               >
-                {`${ordersData ? ordersData.length : 0}/${
-                  holdersData
-                    ? holdersData.nftHolders.reduce(
-                        (a, curr) => a + Number.parseInt(curr.amount),
-                        0
-                      )
-                    : ".."
-                }`}
+                {ordersData && ordersData.length > 0
+                  ? `${ordersData.length.toString().padStart(4, " ")}/`
+                  : undefined}
+                {`${Number.parseInt(loopringData.amount)}`}
               </Typography>
-            </Box> */}
+            </Box>
           </Box>
         }
         action={
@@ -226,7 +237,8 @@ export default function Monitor({ props }) {
           ) : undefined
         }
       />
-      <CardContent sx={{ pt: 0, pb: "16px !important" }}>
+
+      {/* <CardContent sx={{ pt: 0, pb: "16px !important" }}>
         <Box
           sx={{
             display: "flex",
@@ -246,29 +258,7 @@ export default function Monitor({ props }) {
             {`${Number.parseInt(loopringData.amount)}`}
           </Typography>
         </Box>
-      </CardContent>
-      {/* <Box sx={{ display: "flex" }}>
-        <CardMedia
-          sx={{ height: 64, width: "auto" }}
-          component="img"
-          image={`https://www.gstop-content.com/ipfs/${
-            loopringData
-              ? loopringData.metadataJson.image.match(/(?<=.{7}).+/i)
-              : undefined
-          }`}
-          alt={loopringData.metadataJson.name}
-        />
-        
-        <CardContent sx={{ pt: 0 }}>
-          <Typography component="div">
-            {loopringData
-              ? loopringData.metadataJson.description.length > 128
-                ? `${loopringData.metadataJson.description.slice(0, 128)}...`
-                : loopringData.metadataJson.description
-              : undefined}
-          </Typography>
-        </CardContent>
-      </Box> */}
+      </CardContent> */}
     </Card>
   );
 }

@@ -88,6 +88,7 @@ export default function MonitorBoard() {
             index,
             childMetaData,
             setChildMetaData,
+            notify: true,
           }}
           key={index}
         />

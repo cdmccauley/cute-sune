@@ -6,29 +6,49 @@ import Toolbar from "@mui/material/Toolbar";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
+import Modal from "@mui/material/Modal";
 
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 
-import Monitor from "../components/monitor";
+import Monitor from "./monitor";
+import Detail from "./detail";
 
 export default function Footer({ props }) {
   const [inputValue, setInputValue] = useState("");
   const [gsURL, setGSURL] = useState("");
   const [gsURLs, setGSURLs] = useState([]);
 
+  const [detailGsURL, setDetailGSURL] = useState(null);
+
   const [childMetaData, setChildMetaData] = useState({});
   const [childComponents, setChildComponents] = useState([]);
 
   const [soundOff, setSoundOff] = useState(false);
-  const [notify, setNotify] = useState(false);
+  const [notifyAll, setNotifyAll] = useState(true);
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+    setInputValue("");
+  };
+  const handleClose = () => {
+    setOpen(false);
+    setDetailGSURL(null);
+  };
 
   useEffect(() => {
     if (localStorage.getItem("gsURLs"))
       setGSURLs(JSON.parse(localStorage.getItem("gsURLs")));
-    if (!("Notification" in window) || Notification.permission === "granted")
-      setNotify(true);
+    Notification.requestPermission().then((res) => {
+      setNotifyAll(res === "granted");
+    });
   }, []);
+
+  useEffect(() => {
+    console.log("notifyAll", notifyAll);
+  }, [notifyAll]);
 
   useEffect(() => {
     if (
@@ -47,6 +67,10 @@ export default function Footer({ props }) {
   }, [gsURL]);
 
   useEffect(() => {
+    if (detailGsURL) handleOpen();
+  }, [detailGsURL]);
+
+  useEffect(() => {
     setChildComponents(
       gsURLs.map((url, index) => (
         <Monitor
@@ -58,12 +82,13 @@ export default function Footer({ props }) {
             index,
             childMetaData,
             setChildMetaData,
+            notify: notifyAll,
           }}
           key={index}
         />
       ))
     );
-  }, [gsURLs]);
+  }, [gsURLs, notifyAll]);
 
   useEffect(() => {
     if (
@@ -88,6 +113,24 @@ export default function Footer({ props }) {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box>
+          {detailGsURL ? (
+            <Detail
+              props={{
+                gsURL: detailGsURL,
+                // if monitoring send default notify
+                notify: gsURLs.includes(detailGsURL) ? notifyAll : false,
+              }}
+            />
+          ) : undefined}
+        </Box>
+      </Modal>
       <Stack sx={{ m: 2 }} spacing={2}>
         {childComponents.map((childComponent) => childComponent)}
       </Stack>
@@ -103,6 +146,18 @@ export default function Footer({ props }) {
               variant="outlined"
             />
           </Box>
+          {!notifyAll ? (
+            <IconButton
+              onClick={() => {
+                Notification.requestPermission().then((res) => {
+                  setNotifyAll(res === "granted");
+                });
+              }}
+              color="inherit"
+            >
+              <NotificationsActiveIcon />
+            </IconButton>
+          ) : undefined}
           <IconButton
             onClick={() => {
               setGSURL(inputValue);
@@ -111,7 +166,12 @@ export default function Footer({ props }) {
           >
             <PlaylistAddIcon />
           </IconButton>
-          <IconButton color="inherit">
+          <IconButton
+            onClick={() => {
+              setDetailGSURL(inputValue);
+            }}
+            color="inherit"
+          >
             <QueryStatsIcon />
           </IconButton>
         </Toolbar>
