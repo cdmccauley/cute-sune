@@ -10,6 +10,8 @@ import {
   IconButton,
 } from "@mui/material";
 
+import useMediaQuery from "@mui/material/useMediaQuery";
+
 import CloseIcon from "@mui/icons-material/Close";
 
 import EthIcon from "../lib/eth-icon";
@@ -127,6 +129,11 @@ export default function Monitor({ props }) {
     }
   }, [ordersData]);
 
+  const compact = useMediaQuery("(max-width:720px)");
+  const truncate32 = useMediaQuery("(max-width:560px)");
+  const truncate24 = useMediaQuery("(max-width:480px)");
+  const truncate16 = useMediaQuery("(max-width:400px)");
+
   if (parseError || loopringError || ordersError) {
     console.error("Network error", parseError, loopringError, ordersError);
     return (
@@ -151,67 +158,78 @@ export default function Monitor({ props }) {
       <CardHeader
         title={
           <Box sx={{ display: "flex" }}>
-            <Box sx={{ marginInlineEnd: 1.5 }}>
-              <Link
-                underline="none"
-                href={props.url}
-                target="_blank"
-                rel="noopener"
-              >
-                <Image
-                  sx={{ borderRadius: 1 }}
-                  height="32px"
-                  src={`https://www.gstop-content.com/ipfs/${
-                    loopringData
-                      ? loopringData.metadataJson.image.match(/(?<=.{7}).+/i)
-                      : undefined
-                  }`}
-                  alt={`${loopringData.metadataJson.name}`}
-                />
-              </Link>
-            </Box>
-            <Box>
-              <Link
-                variant="h6"
-                underline="none"
-                href={props.url}
-                target="_blank"
-                rel="noopener"
-              >
-                {`${loopringData.metadataJson.name}`}
-              </Link>
-            </Box>
-
-            <Box
-              sx={{ display: "flex", justifyContent: "flex-end", flexGrow: 1 }}
+            <Link
+              sx={{ marginInlineEnd: 1.5 }}
+              underline="none"
+              href={props.url}
+              target="_blank"
+              rel="noopener"
             >
-              {ordersData.length > 0 ? (
-                <EthIcon sx={{ mt: 0.5, mr: 1 }} htmlColor="#7F38EC" />
-              ) : undefined}
-              <Typography
-                sx={{ mr: 1 }}
-                variant="h6"
-                gutterBottom={false}
-                hidden={!ordersData.length > 0}
-              >
-                {`${
-                  ordersData.length > 0
-                    ? ordersData[0].toFixed(4)
-                    : "- . - - - -"
+              <Image
+                sx={{ borderRadius: 1 }}
+                height="32px"
+                src={`https://www.gstop-content.com/ipfs/${
+                  loopringData
+                    ? loopringData.metadataJson.image.match(/(?<=.{7}).+/i)
+                    : undefined
                 }`}
-              </Typography>
-              <Typography
-                sx={{ minWidth: "100px", whiteSpace: "pre-wrap" }}
-                variant="h6"
-                gutterBottom={false}
-                hidden={!ordersData.length > 0}
+                alt={`${loopringData.metadataJson.name}`}
+              />
+            </Link>
+            <Link
+              sx={{
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+              }}
+              noWrap
+              variant="h6"
+              underline="none"
+              href={props.url}
+              target="_blank"
+              rel="noopener"
+            >
+              {truncate16 && loopringData.metadataJson.name.length > 15
+                ? loopringData.metadataJson.name.slice(0, 13).padEnd(16, ".")
+                : truncate24 && loopringData.metadataJson.name.length > 23
+                ? loopringData.metadataJson.name.slice(0, 21).padEnd(24, ".")
+                : truncate32 && loopringData.metadataJson.name.length > 31
+                ? loopringData.metadataJson.name.slice(0, 29).padEnd(32, ".")
+                : loopringData.metadataJson.name}
+            </Link>
+
+            {!compact ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  flexGrow: 1,
+                }}
               >
-                {ordersData && ordersData.length > 0
-                  ? `${ordersData.length.toString().padStart(4, " ")}/`
-                  : undefined}
-                {`${Number.parseInt(loopringData.amount)}`}
-              </Typography>
-            </Box>
+                <EthIcon sx={{ mt: 0.5, mr: 1 }} htmlColor="#7F38EC" />
+                <Typography
+                  sx={{ mr: 1, minWidth: "64.95px" }}
+                  variant="h6"
+                  gutterBottom={false}
+                >
+                  {`${
+                    ordersData.length > 0
+                      ? ordersData[0].toFixed(4)
+                      : "- . - - - -"
+                  }`}
+                </Typography>
+                <Typography
+                  sx={{ minWidth: "100px", whiteSpace: "pre-wrap" }}
+                  variant="h6"
+                  gutterBottom={false}
+                >
+                  {ordersData && ordersData.length > 0
+                    ? `${ordersData.length.toString().padStart(4, " ")}/`
+                    : "".padStart(2, " ")}
+                  {`${Number.parseInt(loopringData.amount)}`}
+                </Typography>
+              </Box>
+            ) : undefined}
           </Box>
         }
         action={
@@ -238,27 +256,28 @@ export default function Monitor({ props }) {
         }
       />
 
-      {/* <CardContent sx={{ pt: 0, pb: "16px !important" }}>
-        <Box
-          sx={{
-            display: "flex",
-          }}
-        >
-          <EthIcon fontSize="small" sx={{ mt: 0.2, mr: 0.2 }} />
-
-          <Typography variant="body1" component="div">
-            {`${
-              ordersData.length > 0 ? ordersData[0].toFixed(4) : "- . - - - -"
-            }`}
-          </Typography>
-          <Typography sx={{ ml: 2, mr: 1 }} variant="body1" component="div">
-            {ordersData && ordersData.length > 0
-              ? `${ordersData.length}/`
-              : undefined}
-            {`${Number.parseInt(loopringData.amount)}`}
-          </Typography>
-        </Box>
-      </CardContent> */}
+      {compact ? (
+        <CardContent sx={{ pt: 0, pb: "16px !important" }}>
+          <Box sx={{ display: "flex" }}>
+            <EthIcon sx={{ mr: 1 }} htmlColor="#7F38EC" />
+            <Typography sx={{ mr: 1 }} variant="body1" gutterBottom={false}>
+              {`${
+                ordersData.length > 0 ? ordersData[0].toFixed(4) : "- . - - - -"
+              }`}
+            </Typography>
+            <Typography
+              sx={{ minWidth: "100px", whiteSpace: "pre-wrap" }}
+              variant="body1"
+              gutterBottom={false}
+            >
+              {ordersData && ordersData.length > 0
+                ? `${ordersData.length.toString().padStart(4, " ")}/`
+                : "".padStart(2, " ")}
+              {`${Number.parseInt(loopringData.amount)}`}
+            </Typography>
+          </Box>
+        </CardContent>
+      ) : undefined}
     </Card>
   );
 }

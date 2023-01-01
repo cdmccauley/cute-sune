@@ -131,7 +131,7 @@ export default function Footer({ props }) {
           ) : undefined}
         </Box>
       </Modal>
-      <Stack sx={{ m: 2 }} spacing={2}>
+      <Stack sx={{ m: 2, mb: "80px" }} spacing={2}>
         {childComponents.map((childComponent) => childComponent)}
       </Stack>
       <AppBar position="fixed" color="primary" sx={{ top: "auto", bottom: 0 }}>
