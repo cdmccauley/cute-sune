@@ -3,6 +3,9 @@ import clientPromise from "../../lib/mongodb";
 import { verifyMessage } from "ethers/lib/utils.js";
 
 import crypto from "crypto";
+import util from "util";
+
+const generateKeyPair = util.promisify(crypto.generateKeyPair);
 
 export default async function handler(req, res) {
   // called when client recieves a signature
@@ -11,14 +14,19 @@ export default async function handler(req, res) {
   // client creates signature with their connected wallet
   // wallet is address returned to client after they connect their wallet
   const argCheck =
-    req.body.uuid && req.body.message && req.body.wallet && req.body.signature;
+    req.body.uuid &&
+    req.body.message &&
+    req.body.wallet &&
+    req.body.signature &&
+    req.body.publicKey;
+
+  // console.log(JSON.parse(req.body.publicKey));
 
   if (req.method == "POST" && argCheck) {
     let result = {
       session: undefined,
     };
 
-    // TODO: also clean up apikeys in other endpoints)
     try {
       //// prepare
       const client = await clientPromise;
@@ -35,10 +43,10 @@ export default async function handler(req, res) {
       //// check blacklist
       const blacklisted = await blacklist.findOne({
         _id: req.body.wallet,
-        enabled: true
+        enabled: true,
       });
 
-      console.log('blacklisted', blacklisted)
+      if (blacklisted) console.log("blacklisted", blacklisted);
 
       //// check message exists
       const existing = await messages.findOne({
@@ -46,7 +54,7 @@ export default async function handler(req, res) {
         message: req.body.message,
       });
 
-      if (existing) {
+      if (!blacklisted && existing) {
         //// check wallet is hodler
         const host =
           process.env.VERCEL_ENV == "production"
@@ -95,12 +103,28 @@ export default async function handler(req, res) {
               verifyMessage(req.body.message, req.body.signature) ==
                 req.body.wallet
             ) {
+              const me = await generateKeyPair("rsa", {
+                modulusLength: 4096,
+                hashAlgorithm: "SHA-256",
+              }).then((res) => res);
+
               // create or overwrite key
               await sessions.updateOne(
                 { _id: req.body.wallet },
                 {
                   $set: {
                     apiKey: crypto.randomUUID(),
+                    client: crypto.webcrypto.subtle.importKey(
+                      "jwk",
+                      JSON.parse(req.body.publicKey),
+                      { name: "RSA-OAEP", hash: "SHA-256" },
+                      true,
+                      ["encrypt"]
+                    ),
+                    server: {
+                      publicKey: me.publicKey.export({ format: "jwk" }),
+                      privateKey: me.privateKey.export({ format: "jwk" }),
+                    },
                     created: new Date().valueOf(),
                   },
                 },
@@ -112,8 +136,11 @@ export default async function handler(req, res) {
                 _id: req.body.wallet,
               });
 
+              console.log(confirm.client);
+
               result = {
-                session: confirm,
+                server: confirm.server.publicKey,
+                apiKey: null, // trying to encrypt the key here to send
               };
             }
           });

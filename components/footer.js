@@ -46,9 +46,9 @@ export default function Footer({ props }) {
     });
   }, []);
 
-  useEffect(() => {
-    console.log("notifyAll", notifyAll);
-  }, [notifyAll]);
+  // useEffect(() => {
+  //   console.log("notifyAll", notifyAll);
+  // }, [notifyAll]);
 
   useEffect(() => {
     if (

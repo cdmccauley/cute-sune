@@ -110,7 +110,11 @@ export default function Detail({ props }) {
             action={
               <IconButton
                 aria-label="remove"
-                onClick={() => console.log("menu?")}
+                onClick={() => {
+                  console.log("menu?");
+                  const { ethereum } = window;
+                  console.log(ethereum)
+                }}
               >
                 <MoreVertIcon sx={{ height: 24, width: 24 }} />
               </IconButton>

@@ -67,6 +67,11 @@ export default function Home({ isConnected }) {
   const updateAccountCenter = useAccountCenter();
   updateAccountCenter({ enabled: false });
 
+  const [keyPair, setKeyPair] = useState(null);
+  const [testSignature, setTestSignature] = useState(null);
+
+  const testMessage = new TextEncoder().encode("this need to be verified");
+
   const [uuid, setUuid] = useState(undefined);
   const [introduction, setIntroduction] = useState(undefined);
 
@@ -81,7 +86,44 @@ export default function Home({ isConnected }) {
       const newUuid = crypto.randomUUID();
       setUuid(newUuid);
     }
+
+    window.crypto.subtle
+      .generateKey(
+        {
+          name: "RSA-OAEP",
+          modulusLength: 4096,
+          publicExponent: new Uint8Array([1, 0, 1]),
+          hash: "SHA-256",
+        },
+        true,
+        ["encrypt", "decrypt"]
+      )
+      .then((res) => setKeyPair(res));
   }, []);
+
+  useEffect(() => {
+    if (keyPair) {
+      console.log(keyPair);
+      // window.crypto.subtle
+      //   .sign("RSASSA-PKCS1-v1_5", keyPair.privateKey, testMessage)
+      //   .then((res) => setTestSignature(res));
+      window.crypto.subtle
+        .exportKey("jwk", keyPair.publicKey)
+        .then((res) => console.log(JSON.stringify(res)));
+    }
+  }, [keyPair]);
+
+  useEffect(() => {
+    console.log("testSignature", testSignature);
+    // window.crypto.subtle
+    //   .verify(
+    //     "RSASSA-PKCS1-v1_5",
+    //     keyPair.publicKey,
+    //     testSignature,
+    //     testMessage
+    //   )
+    //   .then((res) => console.log(res));
+  }, [testSignature]);
 
   useEffect(() => {
     if (uuid) {
@@ -119,31 +161,62 @@ export default function Home({ isConnected }) {
   }, [provider]);
 
   useEffect(() => {
-    if (introduction && introduction.message && signature) {
+    if (introduction && introduction.message && signature && keyPair) {
       console.log({
         signature: signature,
         "created by": verifyMessage(introduction.message, signature.signature),
       });
-      fetch("/api/session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          uuid: uuid,
-          message: introduction.message,
-          wallet: signature.provider,
-          signature: signature.signature,
-        }),
-      })
-        .then((res) => res.json())
-        .then((json) => {
-          // check res for nftdata
-          console.log(json);
-          setSession(json);
-        });
+      window.crypto.subtle
+        .exportKey("jwk", keyPair.publicKey)
+        .then((exportKey) =>
+          fetch("/api/session", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              uuid: uuid,
+              message: introduction.message,
+              wallet: signature.provider,
+              signature: signature.signature,
+              publicKey: JSON.stringify(exportKey),
+            }),
+          })
+            .then((res) => res.json())
+            .then((json) => {
+              setSession(json);
+            })
+        );
     }
   }, [signature]);
+
+  useEffect(() => {
+    if (session) {
+      console.log("session", session.server);
+
+      // provides ability to encrypt message to server
+      window.crypto.subtle
+        .importKey(
+          "jwk",
+          session.server,
+          { name: "RSA-OAEP", hash: "SHA-256" },
+          true,
+          ["encrypt"]
+        )
+        .then((res) => console.log(res));
+
+      console.log('session.apiKey', session);
+
+      // need to provide public key to server so it can encrypt this message with that
+      // window.crypto.subtle
+      //   .decrypt(
+      //     { name: "RSA-OAEP" },
+      //     keyPair.privateKey,
+      //     session.apiKey
+      //   )
+      //   .then((res) => console.log("decrypt", res));
+    }
+  }, [session]);
 
   return (
     <ThemeProvider theme={theme}>
