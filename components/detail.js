@@ -11,6 +11,7 @@ import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import IconButton from "@mui/material/IconButton";
+import Grid from "@mui/material/Grid";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
@@ -52,7 +53,7 @@ export default function Detail({ props }) {
 
   return (
     <Container sx={{ minWidth: "100%" }}>
-      <Stack sx={{ mt: 3, mb: 2 }} spacing={3}>
+      <Stack sx={{ mt: 3, mb: 2 }} spacing={1.5}>
         {gsURL ? (
           <Card raised={true}>
             <Monitor
@@ -64,6 +65,47 @@ export default function Detail({ props }) {
             />
           </Card>
         ) : undefined}
+
+        {ordersData && historyData ? (
+          <Card raised={true} sx={{ p: 2 }}>
+            <CardContent sx={{ display: "flex", gap: 4 }}>
+              {historyData ? (
+                <Box sx={{ width: "100%" }}>
+                  <Typography>{`Discovered Sales (${
+                    historyData.filter(
+                      (o) =>
+                        o.transaction.orderA &&
+                        (parseFloat(o.transaction.orderA.amountS) * 1e-18) /
+                          parseFloat(o.transaction.orderA.amountB) <
+                          3
+                    ).length
+                  })`}</Typography>
+                  <History props={{ history: historyData }} />
+                </Box>
+              ) : undefined}
+              {ordersData && ordersData[0] ? (
+                <Box sx={{ width: "100%" }}>
+                  <Typography>{`Listings (${
+                    limitMethod == "INDEX"
+                      ? "First 10"
+                      : limitMethod == "PERCENT"
+                      ? "Up to 250% current price"
+                      : "All"
+                  })`}</Typography>
+                  <Display
+                    props={{
+                      ordersData: ordersData,
+                      limitMethod: limitMethod,
+                    }}
+                  />
+                </Box>
+              ) : (
+                <Typography>{`Listings (0)`}</Typography>
+              )}
+            </CardContent>
+          </Card>
+        ) : undefined}
+
         <Card raised={true}>
           <CardHeader
             title={
@@ -113,7 +155,7 @@ export default function Detail({ props }) {
                 onClick={() => {
                   console.log("menu?");
                   const { ethereum } = window;
-                  console.log(ethereum)
+                  console.log(ethereum);
                 }}
               >
                 <MoreVertIcon sx={{ height: 24, width: 24 }} />
@@ -121,46 +163,6 @@ export default function Detail({ props }) {
             }
           />
         </Card>
-
-        {ordersData && historyData ? (
-          <Card raised={true} sx={{ p: 2 }}>
-            <CardContent sx={{ display: "flex", gap: 4 }}>
-              {historyData ? (
-                <Box sx={{ width: "100%" }}>
-                  <Typography>{`Discovered Sales (${
-                    historyData.filter(
-                      (o) =>
-                        o.transaction.orderA &&
-                        (parseFloat(o.transaction.orderA.amountS) * 1e-18) /
-                          parseFloat(o.transaction.orderA.amountB) <
-                          3
-                    ).length
-                  })`}</Typography>
-                  <History props={{ history: historyData }} />
-                </Box>
-              ) : undefined}
-              {ordersData && ordersData[0] ? (
-                <Box sx={{ width: "100%" }}>
-                  <Typography>{`Listings (${
-                    limitMethod == "INDEX"
-                      ? "First 10"
-                      : limitMethod == "PERCENT"
-                      ? "Up to 250% current price"
-                      : "All"
-                  })`}</Typography>
-                  <Display
-                    props={{
-                      ordersData: ordersData,
-                      limitMethod: limitMethod,
-                    }}
-                  />
-                </Box>
-              ) : (
-                <Typography>{`Listings (0)`}</Typography>
-              )}
-            </CardContent>
-          </Card>
-        ) : undefined}
       </Stack>
     </Container>
   );

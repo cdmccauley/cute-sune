@@ -37,6 +37,8 @@ import { verifyMessage } from "ethers/lib/utils.js";
 import injectedModule, { ProviderLabel } from "@web3-onboard/injected-wallets";
 import { init, useConnectWallet, useAccountCenter } from "@web3-onboard/react";
 
+// var Buffer = require("buffer/").Buffer;
+
 const MAINNET_RPC_URL = `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`;
 
 const injected = injectedModule({
@@ -87,43 +89,20 @@ export default function Home({ isConnected }) {
       setUuid(newUuid);
     }
 
-    window.crypto.subtle
-      .generateKey(
-        {
-          name: "RSA-OAEP",
-          modulusLength: 4096,
-          publicExponent: new Uint8Array([1, 0, 1]),
-          hash: "SHA-256",
-        },
-        true,
-        ["encrypt", "decrypt"]
-      )
-      .then((res) => setKeyPair(res));
-  }, []);
-
-  useEffect(() => {
-    if (keyPair) {
-      console.log(keyPair);
-      // window.crypto.subtle
-      //   .sign("RSASSA-PKCS1-v1_5", keyPair.privateKey, testMessage)
-      //   .then((res) => setTestSignature(res));
+    if (!keyPair)
       window.crypto.subtle
-        .exportKey("jwk", keyPair.publicKey)
-        .then((res) => console.log(JSON.stringify(res)));
-    }
-  }, [keyPair]);
-
-  useEffect(() => {
-    console.log("testSignature", testSignature);
-    // window.crypto.subtle
-    //   .verify(
-    //     "RSASSA-PKCS1-v1_5",
-    //     keyPair.publicKey,
-    //     testSignature,
-    //     testMessage
-    //   )
-    //   .then((res) => console.log(res));
-  }, [testSignature]);
+        .generateKey(
+          {
+            name: "RSA-OAEP",
+            modulusLength: 4096,
+            publicExponent: new Uint8Array([1, 0, 1]),
+            hash: "SHA-256",
+          },
+          true,
+          ["encrypt", "decrypt"]
+        )
+        .then((res) => setKeyPair(res));
+  }, []);
 
   useEffect(() => {
     if (uuid) {
@@ -184,7 +163,22 @@ export default function Home({ isConnected }) {
           })
             .then((res) => res.json())
             .then((json) => {
-              setSession(json);
+              window.crypto.subtle
+                .importKey(
+                  "jwk",
+                  JSON.parse(json.server),
+                  { name: "RSA-OAEP", hash: "SHA-256" },
+                  true,
+                  ["encrypt"]
+                )
+                .then((importKey) => {
+                  setSession({
+                    server: importKey,
+                    apiKey: Uint8Array.from(atob(json.apiKey), (c) =>
+                      c.charCodeAt(0)
+                    ),
+                  });
+                });
             })
         );
     }
@@ -192,29 +186,9 @@ export default function Home({ isConnected }) {
 
   useEffect(() => {
     if (session) {
-      console.log("session", session.server);
-
-      // provides ability to encrypt message to server
       window.crypto.subtle
-        .importKey(
-          "jwk",
-          session.server,
-          { name: "RSA-OAEP", hash: "SHA-256" },
-          true,
-          ["encrypt"]
-        )
-        .then((res) => console.log(res));
-
-      console.log('session.apiKey', session);
-
-      // need to provide public key to server so it can encrypt this message with that
-      // window.crypto.subtle
-      //   .decrypt(
-      //     { name: "RSA-OAEP" },
-      //     keyPair.privateKey,
-      //     session.apiKey
-      //   )
-      //   .then((res) => console.log("decrypt", res));
+        .decrypt({ name: "RSA-OAEP" }, keyPair.privateKey, session.apiKey)
+        .then((res) => console.log("decrypt", session.apiKey, Buffer.from(res).toString()));
     }
   }, [session]);
 

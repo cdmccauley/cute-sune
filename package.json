@@ -19,6 +19,7 @@
     "@web3modal/ethereum": "^2.0.0-rc.1",
     "@web3modal/react": "^2.0.0-rc.1",
     "alchemy-sdk": "^2.2.5",
+    "buffer": "^6.0.3",
     "chart.js": "^3.9.1",
     "chartjs-adapter-date-fns": "^2.0.1",
     "chartjs-plugin-trendline": "^2.0.0",
