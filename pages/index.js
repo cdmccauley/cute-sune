@@ -106,7 +106,6 @@ export default function Home({ isConnected }) {
 
   useEffect(() => {
     if (uuid) {
-      console.log(uuid);
       fetch("/api/introduction", {
         method: "POST",
         headers: {
@@ -141,10 +140,6 @@ export default function Home({ isConnected }) {
 
   useEffect(() => {
     if (introduction && introduction.message && signature && keyPair) {
-      console.log({
-        signature: signature,
-        "created by": verifyMessage(introduction.message, signature.signature),
-      });
       window.crypto.subtle
         .exportKey("jwk", keyPair.publicKey)
         .then((exportKey) =>
@@ -184,14 +179,6 @@ export default function Home({ isConnected }) {
     }
   }, [signature]);
 
-  useEffect(() => {
-    if (session) {
-      window.crypto.subtle
-        .decrypt({ name: "RSA-OAEP" }, keyPair.privateKey, session.apiKey)
-        .then((res) => console.log("decrypt", session.apiKey, Buffer.from(res).toString()));
-    }
-  }, [session]);
-
   return (
     <ThemeProvider theme={theme}>
       <Head>
@@ -204,7 +191,9 @@ export default function Home({ isConnected }) {
       <Header props={{ connect, disconnect, connecting, wallet }} />
 
       {session && Object.keys(session).length > 0 ? (
-        <Footer />
+        <Footer
+          props={{ keyPair: keyPair, session: session, signature: signature }}
+        />
       ) : (
         <Grid container spacing={2} minHeight={160}>
           <Grid

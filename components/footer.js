@@ -83,6 +83,9 @@ export default function Footer({ props }) {
             childMetaData,
             setChildMetaData,
             notify: notifyAll,
+            keyPair: props.keyPair,
+            session: props.session,
+            signature: props.signature,
           }}
           key={index}
         />
@@ -126,6 +129,9 @@ export default function Footer({ props }) {
                 gsURL: detailGsURL,
                 // if monitoring send default notify
                 notify: gsURLs.includes(detailGsURL) ? notifyAll : false,
+                keyPair: props.keyPair,
+                session: props.session,
+                signature: props.signature,
               }}
             />
           ) : undefined}

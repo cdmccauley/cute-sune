@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 
+import parse from "../lib/parse";
+
 import {
   Link,
   Card,
@@ -18,7 +20,6 @@ import EthIcon from "../lib/eth-icon";
 
 import Image from "mui-image";
 
-import useParse from "../data/use-parse";
 import useLoopring from "../data/use-loopring";
 import useOrders from "../data/use-orders";
 
@@ -26,12 +27,21 @@ export default function Monitor({ props }) {
   const [userInterval, setUserInterval] = useState(60000); // 60s
   const [notify, setNotify] = useState(false);
 
-  const { parseData, parseError, parseLoading } = useParse(
-    props ? props.url : null
-  );
+  const parseData = parse(props.url);
+
+  const keyPair = props.keyPair;
+  const session = props.session;
+  const signature = props.signature;
 
   const { loopringData, loopringError, loopringLoading } = useLoopring(
-    parseData ? { parseData } : null
+    parseData
+      ? {
+          parseData: parseData,
+          keyPair: keyPair,
+          session: session,
+          signature: signature,
+        }
+      : null
   );
 
   const { ordersData, ordersError, ordersLoading } = useOrders(
@@ -134,8 +144,8 @@ export default function Monitor({ props }) {
   const truncate24 = useMediaQuery("(max-width:480px)");
   const truncate16 = useMediaQuery("(max-width:400px)");
 
-  if (parseError || loopringError || ordersError) {
-    console.error("Network error", parseError, loopringError, ordersError);
+  if (loopringError || ordersError) {
+    console.error("Network error", loopringError, ordersError);
     return (
       <Card raised={true}>
         <CardContent sx={{ pt: 0 }}>
@@ -144,7 +154,8 @@ export default function Monitor({ props }) {
       </Card>
     );
   }
-  if (parseLoading || loopringLoading || ordersLoading)
+
+  if (loopringLoading || ordersLoading)
     return (
       <Card raised={true}>
         <CardContent sx={{ pt: 0 }}>
