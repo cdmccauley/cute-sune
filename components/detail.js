@@ -61,6 +61,9 @@ export default function Detail({ props }) {
                 url: gsURL,
                 index: 0,
                 notify: props.notify,
+                keyPair: props.keyPair,
+                session: props.session,
+                signature: props.signature,
               }}
             />
           </Card>
