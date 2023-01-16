@@ -5,9 +5,39 @@ export default function useOrders(props) {
     props && props.loopringData ? props.loopringData.nftId : undefined;
   const userInterval =
     props && props.userInterval ? props.userInterval : 60000 * 5; // 5m
-  const url = `/api/orders?key=equipped&nft=${nftId}`;
 
-  const fetcher = (...args) => fetch(...args).then((res) => res.json());
+  const keyPair = props ? props.keyPair : null;
+  const session = props ? props.session : null;
+  const signature = props ? props.signature : null;
+
+  const url = `/api/orders`;
+
+  const fetcher = (url) =>
+    window.crypto.subtle
+      .decrypt({ name: "RSA-OAEP" }, keyPair.privateKey, session.apiKey)
+      .then((dres) => {
+        return window.crypto.subtle
+          .encrypt(
+            { name: "RSA-OAEP" },
+            session.server,
+            new TextEncoder().encode(
+              `${Buffer.from(dres).toString()},${new Date().valueOf()}`
+            )
+          )
+          .then((eres) =>
+            fetch(url, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                nftId: nftId,
+                key: Buffer.from(eres).toString("base64"),
+                wallet: signature.provider,
+              }),
+            }).then((r) => r.json())
+          );
+      });
 
   const { data, error } = useSWR(nftId ? url : null, fetcher, {
     refreshInterval: userInterval,

@@ -11,14 +11,12 @@ import {
   Box,
   IconButton,
 } from "@mui/material";
+import Image from "mui-image";
 
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 import CloseIcon from "@mui/icons-material/Close";
-
 import EthIcon from "../lib/eth-icon";
-
-import Image from "mui-image";
 
 import useLoopring from "../data/use-loopring";
 import useOrders from "../data/use-orders";
@@ -45,7 +43,9 @@ export default function Monitor({ props }) {
   );
 
   const { ordersData, ordersError, ordersLoading } = useOrders(
-    loopringData ? { loopringData, userInterval } : null
+    loopringData
+      ? { loopringData, userInterval, keyPair, session, signature }
+      : null
   );
 
   useEffect(() => {

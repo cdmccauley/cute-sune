@@ -19,31 +19,34 @@ import Display from "../components/display";
 import Monitor from "../components/monitor";
 import History from "../components/history";
 
-import useParse from "../data/use-parse";
 import useLoopring from "../data/use-loopring";
 import useOrders from "../data/use-orders";
 import useHistory from "../data/use-history";
 
+import parse from "../lib/parse";
+
 export default function Detail({ props }) {
-  const [gsURL, setGSURL] = useState(null);
   const [limitMethod, setLimitMethod] = useState("INDEX");
   const [userInterval, setUserInterval] = useState(60000); // 60s
 
-  useEffect(() => {
-    setGSURL(props.gsURL);
-  }, [props.gsURL]);
+  const parseData = parse(props.gsURL);
 
-  const { parseData, parseError, parseLoading } = useParse(
-    gsURL ? gsURL : null
-  );
+  const keyPair = props.keyPair;
+  const session = props.session;
+  const signature = props.signature;
 
   const { loopringData, loopringError, loopringLoading } = useLoopring(
-    parseData ? { parseData } : null
+    parseData ? { parseData, keyPair, session, signature } : null
   );
 
   const { historyData, historyError, historyLoading } = useHistory(
     loopringData && loopringData.loopringNftInfo
-      ? { nft: loopringData.loopringNftInfo.nftData }
+      ? {
+          nft: loopringData.loopringNftInfo.nftData,
+          keyPair,
+          session,
+          signature,
+        }
       : undefined
   );
 
@@ -54,11 +57,11 @@ export default function Detail({ props }) {
   return (
     <Container sx={{ minWidth: "100%" }}>
       <Stack sx={{ mt: 3, mb: 2 }} spacing={1.5}>
-        {gsURL ? (
+        {props.gsURL ? (
           <Card raised={true}>
             <Monitor
               props={{
-                url: gsURL,
+                url: props.gsURL,
                 index: 0,
                 notify: props.notify,
                 keyPair: props.keyPair,

@@ -46,7 +46,7 @@ export default function Footer({ props }) {
     });
   }, []);
 
-  // useEffect(() => {
+  // useEfct(() => {
   //   console.log("notifyAll", notifyAll);
   // }, [notifyAll]);
 

@@ -7,7 +7,7 @@ export default function useLoopring(props) {
   const session = props ? props.session : null;
   const signature = props ? props.signature : null;
 
-  const url = `/api/loopring?key=equipped&contract=${contract}&token=${token}`;
+  const url = `/api/loopring`;
 
   const fetcher = (url) =>
     window.crypto.subtle
