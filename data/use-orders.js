@@ -10,7 +10,7 @@ export default function useOrders(props) {
   const session = props ? props.session : null;
   const signature = props ? props.signature : null;
 
-  const url = `/api/orders`;
+  const url = `/api/orders?nft=${nftId}`;
 
   const fetcher = (url) =>
     window.crypto.subtle
