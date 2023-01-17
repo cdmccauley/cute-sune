@@ -59,7 +59,7 @@ init({
   ],
   appMetadata: {
     name: "cute-sune",
-    icon: "https://cute-sune.vercel.app/favicon.png",
+    icon: `https://${process.env.NEXT_PUBLIC_PROD_HOST}/favicon.png`,
     description: "...equipped for multiplayer",
   },
 });

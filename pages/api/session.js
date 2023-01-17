@@ -56,7 +56,7 @@ export default async function handler(req, res) {
         //// check wallet is hodler
         const host =
           process.env.VERCEL_ENV == "production"
-            ? "https://cute-sune.vercel.app"
+            ? `https://${process.env.PROD_HOST}`
             : "http://localhost:3000";
 
         const accountJson = await fetch(`${host}/api/account`, {

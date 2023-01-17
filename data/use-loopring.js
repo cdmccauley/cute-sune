@@ -23,16 +23,16 @@ export default function useLoopring(props) {
           )
           .then((eres) =>
             fetch(url, {
-              method: "POST",
+              method: "GET",
+              withCredentials: true,
+              credentials: "include",
               headers: {
+                Authorization: JSON.stringify({
+                  key: Buffer.from(eres).toString("base64"),
+                  wallet: signature.provider,
+                }),
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({
-                contract: contract,
-                token: token,
-                key: Buffer.from(eres).toString("base64"),
-                wallet: signature.provider,
-              }),
             }).then((r) => r.json())
           );
       });
