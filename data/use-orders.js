@@ -35,7 +35,11 @@ export default function useOrders(props) {
                 key: Buffer.from(eres).toString("base64"),
                 wallet: signature.provider,
               }),
-            }).then((r) => r.json())
+            }).then((r) => {
+              // what is going on here?
+              console.log("r", r);
+              return r.json();
+            })
           );
       });
 
@@ -49,7 +53,7 @@ export default function useOrders(props) {
   const ordersError = error;
 
   const ordersData =
-    data && Array.isArray(data) && data.length > 0
+    data && Array.isArray(data) && data.length > 0 && data[0]
       ? data
           .map((order) => {
             if (Number.parseInt(order.amount) > 1) {
@@ -66,7 +70,7 @@ export default function useOrders(props) {
           })
           .reduce((a, b) => a.concat(b), [])
           .sort((a, b) => a - b)
-      : data && Array.isArray(data)
+      : data && Array.isArray(data) && !data[0]
       ? []
       : [undefined];
 
