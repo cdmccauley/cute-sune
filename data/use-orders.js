@@ -49,7 +49,7 @@ export default function useOrders(props) {
   const ordersError = error;
 
   const ordersData =
-    data && Array.isArray(data) && data.length > 0
+    data && Array.isArray(data) && data.length > 0 && Object.keys(data[0]).length > 0
       ? data
           .map((order) => {
             if (Number.parseInt(order.amount) > 1) {

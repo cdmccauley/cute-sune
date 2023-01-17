@@ -3,7 +3,7 @@ import clientPromise from "../../lib/mongodb";
 import crypto from "crypto";
 
 export default async function handler(req, res) {
-  let result = undefined;
+  let result = {};
 
   try {
     const argCheck =

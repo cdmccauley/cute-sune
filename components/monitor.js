@@ -49,7 +49,6 @@ export default function Monitor({ props }) {
   );
 
   useEffect(() => {
-    console.log('monitor props', props)
     localStorage.setItem(props.url, JSON.stringify([]));
     if (props.setChildMetaData)
       props.setChildMetaData((prevState) => {
