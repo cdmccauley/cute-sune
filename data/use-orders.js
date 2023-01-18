@@ -12,36 +12,44 @@ export default function useOrders(props) {
 
   const url = `/api/orders?nftId=${nftId}`;
 
-  const fetcher = (url) =>
-    window.crypto.subtle
+  const fetcher = async (url) => {
+    const dres = await window.crypto.subtle
       .decrypt({ name: "RSA-OAEP" }, keyPair.privateKey, session.apiKey)
-      .then((dres) => {
-        return window.crypto.subtle
-          .encrypt(
-            { name: "RSA-OAEP" },
-            session.server,
-            new TextEncoder().encode(
-              `${Buffer.from(dres).toString()},${new Date().valueOf()}`
-            )
-          )
-          .then((eres) =>
-            fetch(url, {
-              method: "GET",
-              withCredentials: true,
-              credentials: "include",
-              headers: {
-                Authorization: JSON.stringify({
-                  key: Buffer.from(eres).toString("base64"),
-                  wallet: signature.provider,
-                }),
-              },
-            }).then((r) => {
-              // what is going on here?
-              console.log("r", r);
-              return r.json();
-            })
-          );
+      .catch((e) => console.error("decrypt error", e));
+
+    const eres = await window.crypto.subtle
+      .encrypt(
+        { name: "RSA-OAEP" },
+        session.server,
+        new TextEncoder().encode(
+          `${Buffer.from(dres).toString()},${new Date().valueOf()}`
+        )
+      )
+      .catch((e) => console.error("encrypt error", e));
+
+    const rres = await fetch(url, {
+      method: "GET",
+      withCredentials: true,
+      credentials: "include",
+      headers: {
+        Authorization: JSON.stringify({
+          key: Buffer.from(eres).toString("base64"),
+          wallet: signature.provider,
+        }),
+      },
+    })
+      .then((r) => {
+        // what is going on here?
+        console.log("r", r);
+        return r.json();
+      })
+      .catch((e) => {
+        console.error("fetch error", e);
+        return undefined;
       });
+
+    return rres;
+  };
 
   const { data, error } = useSWR(nftId ? url : null, fetcher, {
     refreshInterval: userInterval,
