@@ -69,7 +69,6 @@ export default function Monitor({ props }) {
   }, [props.notify]);
 
   useEffect(() => {
-    console.log("ordersData", ordersData);
     const prevOrdersData = JSON.parse(localStorage.getItem(props.url));
 
     // sold out or delisted, set max lowest so next listing will alert

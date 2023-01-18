@@ -37,18 +37,19 @@ export default function useOrders(props) {
           wallet: signature.provider,
         }),
       },
-    })
-      .then((r) => {
-        // what is going on here?
-        console.log("r", r);
-        return r.json();
-      })
-      .catch((e) => {
-        console.error("fetch error", e);
-        return undefined;
-      });
+    }).catch((e) => {
+      console.error("fetch error", e);
+      return undefined;
+    });
 
-    return rres;
+    const jsonify = await rres.json().catch((e) => {
+      console.error("fetch error", e);
+      return undefined;
+    });
+
+    console.log('jsonify', jsonify)
+
+    return jsonify;
   };
 
   const { data, error } = useSWR(nftId ? url : null, fetcher, {
@@ -59,8 +60,6 @@ export default function useOrders(props) {
 
   const ordersLoading = !data && !error;
   const ordersError = error;
-
-  console.log("data", data);
 
   const ordersData =
     data && Array.isArray(data) && data.length > 0 && data[0]
