@@ -10,7 +10,7 @@ export default function useOrders(props) {
   const session = props ? props.session : null;
   const signature = props ? props.signature : null;
 
-  const url = `/api/orders?nft=${nftId}`;
+  const url = `/api/orders?nftId=${nftId}`;
 
   const fetcher = (url) =>
     window.crypto.subtle
@@ -26,15 +26,15 @@ export default function useOrders(props) {
           )
           .then((eres) =>
             fetch(url, {
-              method: "POST",
+              method: "GET",
+              withCredentials: true,
+              credentials: "include",
               headers: {
-                "Content-Type": "application/json",
+                Authorization: JSON.stringify({
+                  key: Buffer.from(eres).toString("base64"),
+                  wallet: signature.provider,
+                }),
               },
-              body: JSON.stringify({
-                nftId: nftId,
-                key: Buffer.from(eres).toString("base64"),
-                wallet: signature.provider,
-              }),
             }).then((r) => {
               // what is going on here?
               console.log("r", r);
@@ -51,6 +51,8 @@ export default function useOrders(props) {
 
   const ordersLoading = !data && !error;
   const ordersError = error;
+
+  console.log("data", data);
 
   const ordersData =
     data && Array.isArray(data) && data.length > 0 && data[0]

@@ -3,13 +3,18 @@ import clientPromise from "../../lib/mongodb";
 import crypto from "crypto";
 
 export default async function handler(req, res) {
-  let result = [undefined];
+  //   let result = [undefined];
+  let result = undefined;
 
   try {
-    const argCheck =
-      req.body && req.body.nftId && req.body.key && req.body.wallet;
+    const argCheck = req.query.nftId && req.headers.authorization;
 
-    if (req.method == "POST" && argCheck) {
+    if (argCheck) {
+      const auth = {
+        key: JSON.parse(req.headers.authorization).key,
+        wallet: JSON.parse(req.headers.authorization).wallet,
+      };
+
       // prepare
       const client = await clientPromise;
       const database = client.db("verification");
@@ -22,7 +27,7 @@ export default async function handler(req, res) {
 
       // check blacklist
       const blacklisted = await blacklist.findOne({
-        _id: req.body.wallet,
+        _id: auth.wallet,
         enabled: true,
       });
 
@@ -30,7 +35,7 @@ export default async function handler(req, res) {
 
       // check session exists
       const existing = await sessions.findOne({
-        _id: req.body.wallet,
+        _id: auth.wallet,
       });
 
       if (existing && !blacklisted) {
@@ -48,12 +53,12 @@ export default async function handler(req, res) {
           .decrypt(
             { name: "RSA-OAEP" },
             privateKey,
-            Uint8Array.from(atob(req.body.key), (c) => c.charCodeAt(0))
+            Uint8Array.from(atob(auth.key), (c) => c.charCodeAt(0))
           )
           .then((res) => Buffer.from(res).toString().split(","));
 
         if (apiKey[0] == existing.apiKey) {
-          let url = `https://api.nft.gamestop.com/nft-svc-marketplace/getNftOrders?nftId=${req.body.nftId}`;
+          let url = `https://api.nft.gamestop.com/nft-svc-marketplace/getNftOrders?nftId=${req.query.nftId}`;
           await fetch(url, {
             credentials: "omit",
             headers: {
