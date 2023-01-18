@@ -3,8 +3,7 @@ import clientPromise from "../../lib/mongodb";
 import crypto from "crypto";
 
 export default async function handler(req, res) {
-  //   let result = [undefined];
-  let result = undefined;
+  let result = [undefined];
 
   try {
     const argCheck = req.query.nftId && req.headers.authorization;

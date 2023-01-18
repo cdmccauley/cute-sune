@@ -15,41 +15,64 @@ export default function useOrders(props) {
   const fetcher = async (url) => {
     const dres = await window.crypto.subtle
       .decrypt({ name: "RSA-OAEP" }, keyPair.privateKey, session.apiKey)
-      .catch((e) => console.error("decrypt error", e));
+      .catch((e) => {
+        console.error("decrypt error", e);
+        return undefined;
+      });
 
-    const eres = await window.crypto.subtle
-      .encrypt(
-        { name: "RSA-OAEP" },
-        session.server,
-        new TextEncoder().encode(
-          `${Buffer.from(dres).toString()},${new Date().valueOf()}`
-        )
-      )
-      .catch((e) => console.error("encrypt error", e));
+    const eres = dres
+      ? await window.crypto.subtle
+          .encrypt(
+            { name: "RSA-OAEP" },
+            session.server,
+            new TextEncoder().encode(
+              `${Buffer.from(dres).toString()},${new Date().valueOf()}`
+            )
+          )
+          .catch((e) => {
+            console.error("encrypt error", e);
+            return undefined;
+          })
+      : undefined;
 
-    const rres = await fetch(url, {
-      method: "GET",
-      withCredentials: true,
-      credentials: "include",
-      headers: {
-        Authorization: JSON.stringify({
-          key: Buffer.from(eres).toString("base64"),
-          wallet: signature.provider,
-        }),
-      },
-    }).catch((e) => {
-      console.error("fetch error", e);
+    const rres = eres
+      ? await fetch(url, {
+          method: "GET",
+          withCredentials: true,
+          credentials: "include",
+          headers: {
+            Authorization: JSON.stringify({
+              key: Buffer.from(eres).toString("base64"),
+              wallet: signature.provider,
+            }),
+          },
+        }).catch((e) => {
+          console.error("fetch error", e);
+          return undefined;
+        })
+      : undefined;
+
+    const jsonify = rres
+      ? await rres.json().catch((e) => {
+          console.error("json error", e);
+          return undefined;
+        })
+      : undefined;
+
+    console.log("jsonify", jsonify);
+
+    if (jsonify && Array.isArray(jsonify) && jsonify.length > 0 && jsonify[0]) {
+      return jsonify;
+    } else if (jsonify && Array.isArray(jsonify) && jsonify.length == 0) {
+      return jsonify;
+    } else if (
+      jsonify &&
+      Array.isArray(jsonify) &&
+      jsonify.length > 0 &&
+      !jsonify[0]
+    ) {
       return undefined;
-    });
-
-    const jsonify = await rres.json().catch((e) => {
-      console.error("fetch error", e);
-      return undefined;
-    });
-
-    console.log('jsonify', jsonify)
-
-    return jsonify;
+    }
   };
 
   const { data, error } = useSWR(nftId ? url : null, fetcher, {
