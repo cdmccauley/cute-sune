@@ -61,17 +61,17 @@ export default function useOrders(props) {
 
     console.log("jsonify", jsonify);
 
-    if (jsonify && Array.isArray(jsonify) && jsonify.length > 0 && jsonify[0]) {
-      return jsonify;
-    } else if (jsonify && Array.isArray(jsonify) && jsonify.length == 0) {
-      return jsonify;
+    if (!jsonify) {
+      return [];
     } else if (
       jsonify &&
       Array.isArray(jsonify) &&
       jsonify.length > 0 &&
       !jsonify[0]
     ) {
-      return undefined;
+      return [];
+    } else {
+      return jsonify;
     }
   };
 
@@ -80,6 +80,8 @@ export default function useOrders(props) {
     refreshWhenHidden: true,
     revalidateOnFocus: false,
   });
+
+  if (data) console.log('data', data)
 
   const ordersLoading = !data && !error;
   const ordersError = error;

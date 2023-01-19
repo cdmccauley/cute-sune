@@ -48,15 +48,26 @@ export default async function handler(req, res) {
         );
 
         // decrypt the api key
-        const apiKey = await crypto.webcrypto.subtle
-          .decrypt(
-            { name: "RSA-OAEP" },
-            privateKey,
-            Uint8Array.from(atob(auth.key), (c) => c.charCodeAt(0))
-          )
-          .then((res) => Buffer.from(res).toString().split(","));
+        const clientKey = Uint8Array.from(atob(auth.key), (c) =>
+          c.charCodeAt(0)
+        );
+        if (process.env.VERCEL_ENV != "production")
+          console.log("clientKey", clientKey);
 
-        if (apiKey[0] == existing.apiKey) {
+        const decryptKey = await crypto.privateDecrypt(
+          { key: privateKey, oaepHash: "sha256" },
+          clientKey
+        );
+        //   .catch((e) => {
+        //     console.log("decrypt error", e);
+        //     return undefined;
+        //   });
+
+        const apiKey = decryptKey
+          ? Buffer.from(decryptKey).toString().split(",")
+          : undefined;
+
+        if (apiKey && apiKey[0] == existing.apiKey) {
           let url = `https://api.nft.gamestop.com/nft-svc-marketplace/getNftOrders?nftId=${req.query.nftId}`;
           await fetch(url, {
             credentials: "omit",
