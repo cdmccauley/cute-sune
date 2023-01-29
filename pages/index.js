@@ -42,7 +42,7 @@ init({
   ],
   appMetadata: {
     name: "🧹🧹🧹",
-    icon: `https://${process.env.NEXT_PUBLIC_PROD_HOST}/favicon.png`,
+    icon: `https://${process.env.NEXT_PUBLIC_PROD_HOST}/favicon-32x32.png`,
     description: "🧹🧹🧹",
   },
 });
