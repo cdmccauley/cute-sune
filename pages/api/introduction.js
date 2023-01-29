@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
       // create new record
       if (!existing) {
-        const newMessage = crypto.randomUUID();
+        const newMessage = `Use of this website is acknowledgement that any data represented is unreliable and does not constitute financial advice. Users of this website assumes all responsibility and risk for the use of this website and it's components.\n\n${crypto.randomUUID()}`;
         await messages.insertOne({
           _id: req.body.uuid,
           message: newMessage,
