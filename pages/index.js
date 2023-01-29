@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import clientPromise from "../lib/mongodb";
 
@@ -12,32 +12,15 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import theme from "../lib/theme";
 
-import {
-  Container,
-  Button,
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  List,
-  ListItem,
-  Box,
-  Modal,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { Typography, Grid } from "@mui/material";
 
-import Monitor from "../components/monitor";
 import Header from "../components/header";
 import Footer from "../components/footer";
 
 import { ethers } from "ethers";
-import { verifyMessage } from "ethers/lib/utils.js";
 
 import injectedModule, { ProviderLabel } from "@web3-onboard/injected-wallets";
 import { init, useConnectWallet, useAccountCenter } from "@web3-onboard/react";
-
-// var Buffer = require("buffer/").Buffer;
 
 const MAINNET_RPC_URL = `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`;
 
@@ -58,9 +41,9 @@ init({
     },
   ],
   appMetadata: {
-    name: "cute-sune",
+    name: "🧹🧹🧹",
     icon: `https://${process.env.NEXT_PUBLIC_PROD_HOST}/favicon.png`,
-    description: "...equipped for multiplayer",
+    description: "🧹🧹🧹",
   },
 });
 
@@ -70,9 +53,6 @@ export default function Home({ isConnected }) {
   updateAccountCenter({ enabled: false });
 
   const [keyPair, setKeyPair] = useState(null);
-  const [testSignature, setTestSignature] = useState(null);
-
-  const testMessage = new TextEncoder().encode("this need to be verified");
 
   const [uuid, setUuid] = useState(undefined);
   const [introduction, setIntroduction] = useState(undefined);
@@ -82,7 +62,6 @@ export default function Home({ isConnected }) {
 
   const [session, setSession] = useState(null);
 
-  // TODO: safely persist uuid on client to reduce db messages
   useEffect(() => {
     if (!uuid) {
       const newUuid = crypto.randomUUID();

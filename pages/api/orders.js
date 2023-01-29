@@ -30,7 +30,7 @@ export default async function handler(req, res) {
         enabled: true,
       });
 
-      if (blacklisted) console.log("blacklisted", blacklisted);
+      if (blacklisted) console.error("blacklisted", blacklisted);
 
       // check session exists
       const existing = await sessions.findOne({
@@ -51,17 +51,11 @@ export default async function handler(req, res) {
         const clientKey = Uint8Array.from(atob(auth.key), (c) =>
           c.charCodeAt(0)
         );
-        if (process.env.VERCEL_ENV != "production")
-          console.log("clientKey", clientKey);
 
         const decryptKey = await crypto.privateDecrypt(
           { key: privateKey, oaepHash: "sha256" },
           clientKey
         );
-        //   .catch((e) => {
-        //     console.log("decrypt error", e);
-        //     return undefined;
-        //   });
 
         const apiKey = decryptKey
           ? Buffer.from(decryptKey).toString().split(",")
@@ -93,7 +87,7 @@ export default async function handler(req, res) {
       }
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
   } finally {
     res.status(200).json(result);
   }

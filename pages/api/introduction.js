@@ -3,11 +3,11 @@ import clientPromise from "../../lib/mongodb";
 import crypto from "crypto";
 
 export default async function handler(req, res) {
-  if (req.method == "POST" && req.body.uuid) {
-    let result = {
-      introduction: undefined,
-    };
+  let result = {
+    introduction: undefined,
+  };
 
+  if (req.method == "POST" && req.body.uuid) {
     try {
       const client = await clientPromise;
 
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
         result = { introduction: confirm };
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       res.status(200).json(result);
     }

@@ -59,8 +59,6 @@ export default function useOrders(props) {
         })
       : undefined;
 
-    console.log("jsonify", jsonify);
-
     if (!jsonify) {
       return [];
     } else if (
@@ -80,8 +78,6 @@ export default function useOrders(props) {
     refreshWhenHidden: true,
     revalidateOnFocus: false,
   });
-
-  if (data) console.log('data', data)
 
   const ordersLoading = !data && !error;
   const ordersError = error;

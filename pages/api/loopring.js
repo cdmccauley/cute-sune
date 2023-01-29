@@ -36,7 +36,7 @@ export default async function handler(req, res) {
         enabled: true,
       });
 
-      if (blacklisted) console.log("blacklisted", blacklisted);
+      if (blacklisted) console.error("blacklisted", blacklisted);
 
       // check session exists
       const existing = await sessions.findOne({
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
       }
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
   } finally {
     res.status(200).json(result);
   }

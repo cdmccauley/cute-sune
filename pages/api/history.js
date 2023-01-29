@@ -3,7 +3,7 @@ import clientPromise from "../../lib/mongodb";
 import crypto from "crypto";
 
 export default async function handler(req, res) {
-  let result = undefined;
+  let result = { undefined };
 
   try {
     const argCheck =
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
         enabled: true,
       });
 
-      if (blacklisted) console.log("blacklisted", blacklisted);
+      if (blacklisted) console.error("blacklisted", blacklisted);
 
       // check session exists
       const existing = await sessions.findOne({
@@ -84,7 +84,7 @@ export default async function handler(req, res) {
       }
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
   } finally {
     res.status(200).json(result);
   }

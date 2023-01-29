@@ -20,12 +20,12 @@ export default async function handler(req, res) {
     req.body.signature &&
     req.body.publicKey;
 
-  if (req.method == "POST" && argCheck) {
-    let result = {
-      session: undefined,
-    };
+  let result = {
+    session: undefined,
+  };
 
-    try {
+  try {
+    if (req.method == "POST" && argCheck) {
       //// prepare
       const client = await clientPromise;
       const database = client.db("verification");
@@ -44,7 +44,7 @@ export default async function handler(req, res) {
         enabled: true,
       });
 
-      if (blacklisted) console.log("blacklisted", blacklisted);
+      if (blacklisted) console.error("blacklisted", blacklisted);
 
       //// check message exists
       const existing = await messages.findOne({
@@ -144,10 +144,10 @@ export default async function handler(req, res) {
           };
         }
       }
-    } catch (e) {
-      console.log(e);
-    } finally {
-      res.status(200).json(result);
     }
+  } catch (e) {
+    console.error(e);
+  } finally {
+    res.status(200).json(result);
   }
 }
