@@ -12,7 +12,7 @@ export default function Header({ props }) {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            🧹🧹🧹
+            {process.env.NEXT_PUBLIC_DESCRIPTION}
           </Typography>
           <Button
             disabled={props.connecting}

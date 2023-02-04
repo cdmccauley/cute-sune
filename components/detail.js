@@ -31,6 +31,7 @@ export default function Detail({ props }) {
 
   const parseData = parse(props.gsURL);
 
+  const config = props.config;
   const keyPair = props.keyPair;
   const session = props.session;
   const signature = props.signature;
@@ -61,6 +62,7 @@ export default function Detail({ props }) {
           <Card raised={true}>
             <Monitor
               props={{
+                config: config,
                 url: props.gsURL,
                 index: 0,
                 notify: props.notify,
@@ -77,7 +79,7 @@ export default function Detail({ props }) {
             <CardContent sx={{ display: "flex", gap: 4 }}>
               {historyData ? (
                 <Box sx={{ width: "100%" }}>
-                  <Typography>{`Discovered Sales (${
+                  <Typography>{`${config.discovered}${
                     historyData.filter(
                       (o) =>
                         o.transaction.orderA &&
@@ -91,12 +93,12 @@ export default function Detail({ props }) {
               ) : undefined}
               {ordersData && ordersData[0] ? (
                 <Box sx={{ width: "100%" }}>
-                  <Typography>{`Listings (${
+                  <Typography>{`${config.listed}${
                     limitMethod == "INDEX"
-                      ? "First 10"
+                      ? config.first
                       : limitMethod == "PERCENT"
-                      ? "Up to 250% current price"
-                      : "All"
+                      ? config.upto
+                      : config.all
                   })`}</Typography>
                   <Display
                     props={{
@@ -106,7 +108,7 @@ export default function Detail({ props }) {
                   />
                 </Box>
               ) : (
-                <Typography>{`Listings (0)`}</Typography>
+                <Typography>{`${config.listed}0)`}</Typography>
               )}
             </CardContent>
           </Card>
@@ -159,9 +161,7 @@ export default function Detail({ props }) {
               <IconButton
                 aria-label="remove"
                 onClick={() => {
-                  console.log("menu?");
-                  const { ethereum } = window;
-                  console.log(ethereum);
+                  //
                 }}
               >
                 <MoreVertIcon sx={{ height: 24, width: 24 }} />

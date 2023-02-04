@@ -38,6 +38,8 @@ export default function Footer({ props }) {
     setDetailGSURL(null);
   };
 
+  const config = props.config;
+
   useEffect(() => {
     if (localStorage.getItem("gsURLs"))
       setGSURLs(JSON.parse(localStorage.getItem("gsURLs")));
@@ -71,10 +73,13 @@ export default function Footer({ props }) {
   }, [detailGsURL]);
 
   useEffect(() => {
+    const limit = config && config.monitor ? config.monitor : 0;
+    const limited = gsURLs.slice(0, limit);
     setChildComponents(
-      gsURLs.map((url, index) => (
+      limited.map((url, index) => (
         <Monitor
           props={{
+            config: props.config,
             url,
             setSoundOff,
             gsURLs,
@@ -126,6 +131,7 @@ export default function Footer({ props }) {
           {detailGsURL ? (
             <Detail
               props={{
+                config: config,
                 gsURL: detailGsURL,
                 // if monitoring send default notify
                 notify: gsURLs.includes(detailGsURL) ? notifyAll : false,

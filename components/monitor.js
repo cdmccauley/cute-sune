@@ -27,6 +27,8 @@ export default function Monitor({ props }) {
 
   const parseData = parse(props.url);
 
+  const config = props.config
+
   const keyPair = props.keyPair;
   const session = props.session;
   const signature = props.signature;
@@ -226,7 +228,7 @@ export default function Monitor({ props }) {
                   {`${
                     ordersData.length > 0
                       ? ordersData[0].toFixed(4)
-                      : "- . - - - -"
+                      : config.dash
                   }`}
                 </Typography>
                 <Typography
@@ -273,7 +275,7 @@ export default function Monitor({ props }) {
             <EthIcon sx={{ mr: 1 }} htmlColor="#7F38EC" />
             <Typography sx={{ mr: 1 }} variant="body1" gutterBottom={false}>
               {`${
-                ordersData.length > 0 ? ordersData[0].toFixed(4) : "- . - - - -"
+                ordersData.length > 0 ? ordersData[0].toFixed(4) : config.dash
               }`}
             </Typography>
             <Typography

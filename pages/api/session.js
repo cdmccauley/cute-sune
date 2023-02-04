@@ -15,6 +15,9 @@ export default async function handler(req, res) {
   // wallet is address returned to client after they connect their wallet
   const argCheck =
     req.body.uuid &&
+    req.body.uuid.match(
+      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
+    ) &&
     req.body.message &&
     req.body.wallet &&
     req.body.signature &&
@@ -32,6 +35,7 @@ export default async function handler(req, res) {
       const messages = database.collection("messages");
       const sessions = database.collection("sessions");
       const blacklist = database.collection("blacklist");
+      const options = database.collection("options");
 
       //// maintain
       const expired = new Date().valueOf() - 8.64e7;
@@ -40,7 +44,7 @@ export default async function handler(req, res) {
 
       //// check blacklist
       const blacklisted = await blacklist.findOne({
-        _id: req.body.wallet,
+        wallet: req.body.wallet,
         enabled: true,
       });
 
@@ -71,9 +75,9 @@ export default async function handler(req, res) {
         }).then((accountResponse) => accountResponse.json());
 
         // check res for nftdata
-        const nftDatas = [
-          "0x215c32952e02dc4026b712c8848c6d52bf5b6361fe7204f7055400bbfb37ea31",
-        ].toString();
+        const nftDatas = await options.findOne({
+          name: "nftDatas",
+        });
 
         const balancesJson = await fetch(`${host}/api/balances`, {
           method: "POST",
@@ -83,7 +87,7 @@ export default async function handler(req, res) {
           body: JSON.stringify({
             key: process.env.CUTE_SUNE_API_KEY,
             accountId: accountJson.account.accountId,
-            nftDatas: nftDatas,
+            nftDatas: nftDatas.allow.toString(),
           }),
         }).then((balancesResponse) => balancesResponse.json());
 

@@ -12,10 +12,12 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import theme from "../lib/theme";
 
-import { Typography, Grid } from "@mui/material";
+import { Typography, Grid, Card, Box } from "@mui/material";
 
 import Header from "../components/header";
 import Footer from "../components/footer";
+
+import crypto from "crypto";
 
 import { ethers } from "ethers";
 
@@ -41,19 +43,20 @@ init({
     },
   ],
   appMetadata: {
-    name: "🧹🧹🧹",
+    name: process.env.NEXT_PUBLIC_TITLE,
     icon: `https://${process.env.NEXT_PUBLIC_PROD_HOST}/favicon-32x32.png`,
-    description: "🧹🧹🧹",
+    description: process.env.NEXT_PUBLIC_DESCRIPTION,
   },
 });
 
-export default function Home({ isConnected }) {
+export default function Home(props) {
   const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
   const updateAccountCenter = useAccountCenter();
   updateAccountCenter({ enabled: false });
 
   const [keyPair, setKeyPair] = useState(null);
 
+  const [config, setConfig] = useState({ title: " ", description: " " });
   const [uuid, setUuid] = useState(undefined);
   const [introduction, setIntroduction] = useState(undefined);
 
@@ -63,10 +66,12 @@ export default function Home({ isConnected }) {
   const [session, setSession] = useState(null);
 
   useEffect(() => {
-    if (!uuid) {
-      const newUuid = crypto.randomUUID();
-      setUuid(newUuid);
-    }
+    if (props.config) setConfig(JSON.parse(props.config));
+
+    if (!uuid)
+      props && props.clientId
+        ? setUuid(props.clientId)
+        : setUuid(window.crypto.randomUUID());
 
     if (!keyPair)
       window.crypto.subtle
@@ -161,7 +166,7 @@ export default function Home({ isConnected }) {
   return (
     <ThemeProvider theme={theme}>
       <Head>
-        <title></title>
+        <title>{config ? config.title : ""}</title>
         <link
           rel="apple-touch-icon"
           sizes="180x180"
@@ -188,26 +193,57 @@ export default function Home({ isConnected }) {
 
       {session && Object.keys(session).length > 0 ? (
         <Footer
-          props={{ keyPair: keyPair, session: session, signature: signature }}
+          props={{
+            config: config,
+            keyPair: keyPair,
+            session: session,
+            signature: signature,
+          }}
         />
       ) : (
-        <Grid container spacing={2} minHeight={160}>
-          <Grid
-            item
-            xs
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Typography variant="h6" gutterBottom>
-              {provider && session && Object.keys(session).length == 0
-                ? "Wallet not authorized"
-                : provider
-                ? "Please sign message to complete verification"
-                : "Please connect to begin"}
-            </Typography>
+        <Box sx={{margin: 5}}>
+          <Grid container spacing={2}>
+            <Grid
+              item
+              xs={12}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Typography variant="h6" gutterBottom>
+                {provider && session && Object.keys(session).length == 0
+                  ? config
+                    ? config.noauth
+                    : " "
+                  : provider
+                  ? config
+                    ? config.onauth
+                    : " "
+                  : config
+                  ? config.preauth
+                  : " "}
+              </Typography>
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Card raised sx={{ padding: 3, marginTop: 2 }}>
+                <Typography variant="p" gutterBottom>
+                  {config.about}
+                </Typography>
+                <br />
+                <br />
+                <Typography variant="p" gutterBottom>
+                  {`${config.clientidentifier}${props.clientId}`}
+                </Typography>
+              </Card>
+            </Grid>
           </Grid>
-        </Grid>
+        </Box>
       )}
     </ThemeProvider>
   );
@@ -215,18 +251,27 @@ export default function Home({ isConnected }) {
 
 export async function getServerSideProps(context) {
   try {
-    await clientPromise;
-    // `await clientPromise` will use the default database passed in the MONGODB_URI
-    // However you can use another database (e.g. myDatabase) by replacing the `await clientPromise` with the following code:
-    //
-    // `const client = await clientPromise`
-    // `const db = client.db("myDatabase")`
-    //
-    // Then you can execute queries against your database like so:
-    // db.find({}) or any of the MongoDB Node Driver commands
+    const client = await clientPromise;
+    const db = await client.db("verification");
+    const collection = await db.collection("messages");
+
+    const config = await collection.findOne({ name: "config" });
+
+    const clientId = crypto.randomUUID();
+
+    await collection.insertOne({
+      _id: clientId,
+      message: `${config.message}${clientId}`,
+      created: new Date().valueOf(),
+    });
 
     return {
-      props: { isConnected: true, test: 1 },
+      props: {
+        isConnected: true,
+        config: JSON.stringify(config),
+        clientId: clientId,
+        message: `${config.message}${clientId}`,
+      },
     };
   } catch (e) {
     console.error(e);

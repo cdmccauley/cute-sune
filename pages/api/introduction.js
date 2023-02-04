@@ -7,7 +7,13 @@ export default async function handler(req, res) {
     introduction: undefined,
   };
 
-  if (req.method == "POST" && req.body.uuid) {
+  if (
+    req.method == "POST" &&
+    req.body.uuid &&
+    req.body.uuid.match(
+      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
+    )
+  ) {
     try {
       const client = await clientPromise;
 
@@ -24,10 +30,11 @@ export default async function handler(req, res) {
 
       // create new record
       if (!existing) {
-        const newMessage = `Use of this website is acknowledgement that any data represented is unreliable and does not constitute financial advice. Users of this website assumes all responsibility and risk for the use of this website and it's components.\n\n${crypto.randomUUID()}`;
+        const newMessage = await messages.findOne({ name: "config" });
+
         await messages.insertOne({
           _id: req.body.uuid,
-          message: newMessage,
+          message: `${newMessage.message}${req.body.uuid}`,
           created: new Date().valueOf(),
         });
 
