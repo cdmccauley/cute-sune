@@ -94,7 +94,8 @@ export default async function handler(req, res) {
         //// check signature is message signed by wallet
         if (
           balancesJson.balances.totalNum > 0 &&
-          verifyMessage(req.body.message, req.body.signature) == req.body.wallet
+          verifyMessage(req.body.message, req.body.signature).toLowerCase() ==
+            req.body.wallet.toLowerCase()
         ) {
           const me = await generateKeyPair("rsa", {
             modulusLength: 4096,

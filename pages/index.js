@@ -116,7 +116,10 @@ export default function Home(props) {
       signer.signMessage(introduction.message).then((res) => {
         setSignature({
           signature: res,
-          provider: provider.provider.currentAddress,
+          provider:
+            provider.connection.url == "eip-1193:"
+              ? provider.provider.currentAddress
+              : provider.provider.selectedAddress,
         });
       });
     }
@@ -201,7 +204,7 @@ export default function Home(props) {
           }}
         />
       ) : (
-        <Box sx={{margin: 5}}>
+        <Box sx={{ margin: 5 }}>
           <Grid container spacing={2}>
             <Grid
               item
