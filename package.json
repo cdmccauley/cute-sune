@@ -6,6 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@ambire/signature-validator": "^1.1.0",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@fontsource/roboto": "^4.5.8",
@@ -32,6 +33,7 @@
     "react-chartjs-2": "^4.3.1",
     "react-dom": "^17.0.2",
     "swr": "^2.0.0",
-    "wagmi": "^0.9.5"
+    "wagmi": "^0.9.5",
+    "web3": "^1.8.2"
   }
 }

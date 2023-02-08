@@ -22,6 +22,7 @@ import crypto from "crypto";
 import { ethers } from "ethers";
 
 import injectedModule, { ProviderLabel } from "@web3-onboard/injected-wallets";
+import walletConnectModule from "@web3-onboard/walletconnect";
 import { init, useConnectWallet, useAccountCenter } from "@web3-onboard/react";
 
 const MAINNET_RPC_URL = `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`;
@@ -32,8 +33,10 @@ const injected = injectedModule({
   },
 });
 
+const walletConnect = walletConnectModule();
+
 init({
-  wallets: [injected],
+  wallets: [injected, walletConnect],
   chains: [
     {
       id: "0x1",
@@ -112,14 +115,19 @@ export default function Home(props) {
 
   useEffect(() => {
     if (provider && !signature) {
+      const address = provider.provider.isGamestop
+        ? provider.provider.currentAddress.toLowerCase()
+        : provider.provider.isMetaMask
+        ? provider.provider.selectedAddress.toLowerCase()
+        : provider.provider.connector &&
+          provider.provider.connector.protocol == "wc"
+        ? provider.provider.connector.accounts[0].toLowerCase()
+        : undefined;
       const signer = provider.getSigner();
       signer.signMessage(introduction.message).then((res) => {
         setSignature({
           signature: res,
-          provider:
-            provider.connection.url == "eip-1193:"
-              ? provider.provider.currentAddress
-              : provider.provider.selectedAddress,
+          provider: address,
         });
       });
     }

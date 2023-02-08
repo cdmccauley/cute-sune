@@ -1,9 +1,13 @@
 import clientPromise from "../../lib/mongodb";
 
-import { verifyMessage } from "ethers/lib/utils.js";
-
 import crypto from "crypto";
 import util from "util";
+
+const ethers = require("ethers");
+const { verifyMessage } = require("@ambire/signature-validator");
+const provider = new ethers.providers.JsonRpcProvider(
+  `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
+);
 
 const generateKeyPair = util.promisify(crypto.generateKeyPair);
 
@@ -91,12 +95,15 @@ export default async function handler(req, res) {
           }),
         }).then((balancesResponse) => balancesResponse.json());
 
+        const val = await verifyMessage({
+          signer: req.body.wallet,
+          message: req.body.message,
+          signature: req.body.signature,
+          provider,
+        });
+
         //// check signature is message signed by wallet
-        if (
-          balancesJson.balances.totalNum > 0 &&
-          verifyMessage(req.body.message, req.body.signature).toLowerCase() ==
-            req.body.wallet.toLowerCase()
-        ) {
+        if (balancesJson.balances.totalNum > 0 && val) {
           const me = await generateKeyPair("rsa", {
             modulusLength: 4096,
             hashAlgorithm: "SHA-256",
@@ -104,7 +111,7 @@ export default async function handler(req, res) {
 
           // create or overwrite session
           await sessions.updateOne(
-            { _id: req.body.wallet },
+            { _id: req.body.wallet.toLowerCase() },
             {
               $set: {
                 apiKey: crypto.randomUUID(),
@@ -125,7 +132,7 @@ export default async function handler(req, res) {
 
           // get same key from db to give to client
           const confirm = await sessions.findOne({
-            _id: req.body.wallet,
+            _id: req.body.wallet.toLowerCase(),
           });
 
           // encrypt for client ops outside memory
