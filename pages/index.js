@@ -246,11 +246,6 @@ export default function Home(props) {
                 <Typography variant="p" gutterBottom>
                   {config.about}
                 </Typography>
-                <br />
-                <br />
-                <Typography variant="p" gutterBottom>
-                  {`${config.clientidentifier}${props.clientId}`}
-                </Typography>
               </Card>
             </Grid>
           </Grid>
